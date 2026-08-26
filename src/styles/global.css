@@ -1,0 +1,474 @@
+/* ==========================================================================
+   Fluid Scaling System
+   Viewport-based scaling — all em values scale automatically.
+   ========================================================================== */
+
+/* Desktop */
+:root {
+  --size-unit: 16; /* body font-size in design — no px */
+  --size-container-ideal: 1440; /* Figma frame width */
+  --size-container-min: 992px;
+  /* Content column cap. The section cards themselves may run wider (up to
+     --size-page-max); type keeps scaling against this 1280px column so copy
+     never balloons on wide screens. */
+  --size-container-max: 1280px;
+  --size-container: clamp(var(--size-container-min), 100vw, var(--size-container-max));
+  --size-font: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
+  --container-padding: 9.75em; /* 156px at the 1440 design width */
+  /* Width cap for the section-card stack (content inside still caps at
+     --size-container-max) */
+  --size-page-max: 1440px;
+}
+
+/* ==========================================================================
+   Design Tokens — Darken
+   ========================================================================== */
+
+:root {
+  /* Colors */
+  /* Page ground — the darkest layer, visible in the gutters between cards */
+  --color-page-ground: #060606;
+  /* Section-card surface — lifted off the ground so each rounded card reads
+     as a distinct panel (the gap/radius layout depends on this contrast) */
+  --color-bg-dark: #121212;
+  --color-accent: #fe4a00;
+  --color-text-white: #ffffff;
+  --color-text-body: #828282; /* ≥4.5:1 (WCAG AA) on all card surfaces used in the design */
+  --color-text-muted: #8c8c9a;
+
+  /* Surfaces & outlines (translucent white over the dark base) */
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-raised: rgba(255, 255, 255, 0.03);
+  --color-surface-faint: rgba(255, 255, 255, 0.02); /* inner-card fill */
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
+  --color-border-soft: rgba(255, 255, 255, 0.08);
+
+  /* Ghost button gradient (used by nav + secondary CTAs) */
+  --gradient-ghost: linear-gradient(
+    180deg,
+    rgba(234, 234, 251, 0) 0%,
+    rgba(234, 234, 251, 0.1) 100%
+  );
+
+  /* Typography */
+  --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-wordmark: "Roboto", "Plus Jakarta Sans", system-ui, sans-serif;
+
+  /* Type scale (Figma px → em @ 16px base) */
+  --text-6xl: 3.75em;   /* 60px */
+  --text-4xl: 3em;      /* 48px */
+  --text-2xl: 1.5em;    /* 24px */
+  --text-lg: 1.25em;    /* 20px */
+  --text-base: 1em;     /* 16px */
+  --text-sm: 0.875em;   /* 14px */
+  --text-xs: 0.75em;    /* 12px */
+
+  /* Spacing scale */
+  --spacing-xs: 0.25em;   /* 4px */
+  --spacing-sm: 0.5em;    /* 8px */
+  --spacing-md: 1em;      /* 16px */
+  --spacing-lg: 1.5em;    /* 24px */
+  --spacing-xl: 2em;      /* 32px */
+  --spacing-2xl: 2.5em;   /* 40px */
+  --spacing-3xl: 3em;     /* 48px */
+  --spacing-4xl: 3.75em;  /* 60px */
+  --spacing-5xl: 5em;     /* 80px */
+  --spacing-section: 5em; /* 80px */
+
+  /* Height of the floating header pill (0.75em padding ×2 + the 2.25em CTA,
+     its tallest row item) and its distance from the viewport top. The pill's
+     min-height pins it to this token; if a nav control ever grows taller,
+     this token must grow with it or anchors and the hero tuck under the
+     pill. Consumers: Navbar, html scroll-padding-top, Hero top clearance. */
+  --header-height: 3.75em;
+  --header-offset: 2.5em;
+
+  /* Cell padding — breathing room INSIDE a card, around its copy.
+     Every padded cell uses this so the rhythm stays even across the page. */
+  --cell-padding: 3em; /* 48px */
+
+  /* Page-level layout: sections are rounded cards floating on the page
+     ground, separated by --page-gap and inset from the viewport edge by
+     --page-gutter (mirrors the Ecodrive card-stack layout). */
+  --page-gutter: 1.5em; /* 24px */
+  --page-gap: 1em; /* 16px */
+  --radius-section: 1.5em; /* 24px — section-card corners */
+  --radius-card: var(--radius-2xl); /* 16px — inner containers/cards */
+
+  /* Border radius */
+  --radius-sm: 0.375em;  /* 6px */
+  --radius-md: 0.5em;    /* 8px */
+  --radius-lg: 0.625em;  /* 10px */
+  --radius-xl: 0.75em;   /* 12px */
+  --radius-2xl: 1em;     /* 16px */
+  --radius-pill: 62.5em;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}
+
+/* ==========================================================================
+   Responsive token tiers
+   MUST come after every unconditional :root block above: custom properties
+   cascade by source order, not media specificity, so an override declared
+   before the base definition silently loses at every viewport width.
+   ========================================================================== */
+
+/* Tablet */
+@media screen and (max-width: 991px) {
+  :root {
+    --size-container-ideal: 834;
+    --size-container-min: 768px;
+    --size-container-max: 991px;
+    --container-padding: 1.5em;
+    --cell-padding: 2em;
+    --page-gutter: 1em;
+    --page-gap: 0.875em;
+    --header-offset: 1.25em;
+    /* The hamburger and CTA grow to 2.75em (44px) touch targets below 992px */
+    --header-height: 4.25em;
+  }
+}
+
+/* Mobile Landscape */
+@media screen and (max-width: 767px) {
+  :root {
+    --size-container-ideal: 550;
+    --size-container-min: 480px;
+    --size-container-max: 767px;
+    --container-padding: 1em;
+    --cell-padding: 1.5em;
+    --page-gutter: 0.75em;
+    --page-gap: 0.75em;
+  }
+}
+
+/* Mobile Portrait */
+@media screen and (max-width: 479px) {
+  :root {
+    --size-container-ideal: 390;
+    --size-container-min: 320px;
+    --size-container-max: 479px;
+    --container-padding: 1em;
+  }
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* The fluid size must live on html too, not just body: scroll-padding-top
+     below resolves its ems against html's font, and with the 16px default it
+     would under-clear the pill on mobile widths where --size-font runs
+     larger. (rem becomes fluid as a side effect — nothing depends on it.) */
+  font-size: var(--size-font);
+  scroll-behavior: smooth;
+  /* Every programmatic scroll (anchor jumps AND scroll-on-focus) stops below
+     the fixed header pill — scroll-margin on targets would only cover anchors,
+     leaving keyboard focus scrolled underneath the pill. */
+  scroll-padding-top: calc(var(--header-offset) + var(--header-height) + 1em);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--size-font);
+  color: var(--color-text-body);
+  /* The ground the section cards float on — visible in every gutter */
+  background-color: var(--color-page-ground);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Page shell — width cap + gutter for the section-card stack
+   ========================================================================== */
+
+.page-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-gap);
+  width: 100%;
+  max-width: var(--size-page-max);
+  margin-inline: auto;
+  padding: var(--page-gutter);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-gap);
+}
+
+/* ==========================================================================
+   Section cards
+   Every section (and the footer) is a rounded card floating on the page
+   ground, separated by --page-gap instead of hairline seams. overflow:hidden
+   is load-bearing — full-bleed media (hero video, marquee tracks, the CTA
+   backdrop) is clipped to the rounded corners by the card itself.
+   ========================================================================== */
+
+main > section,
+.site-footer {
+  border-radius: var(--radius-section);
+  background-color: var(--color-bg-dark);
+  overflow: hidden;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.167;
+  color: var(--color-text-white);
+  overflow-wrap: break-word;
+}
+
+p {
+  overflow-wrap: break-word;
+}
+
+/* ==========================================================================
+   Base Utilities
+   ========================================================================== */
+
+/* Full-bleed row wrapper. Caps width to the page shell and adds NO padding of
+   its own — a section's content runs edge to edge, and the breathing room comes
+   from --cell-padding inside each bordered cell. */
+.container {
+  width: 100%;
+  max-width: var(--size-container);
+  margin-inline: auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Dashed accent divider (ported from the Ecodrive service cards): 6px dashes
+   that fade out toward both ends via a mask. The site's only inner-container
+   divider — used by the service cards and the spotlight panel, so it lives
+   here rather than in either component.
+
+   The dash color is deliberately translucent. A 1px line lands on a different
+   device-pixel fraction in every card (the em-fluid layout puts containers at
+   fractional offsets), so a solid line renders crisp in one place and
+   antialiased-soft in another. Painting it light to begin with makes that
+   difference imperceptible and matches the intended hairline weight. */
+.dashed-divider {
+  --dash-color: rgba(254, 74, 0, 0.55);
+
+  display: block; /* the divider is a span — it must size in block flow too */
+  flex-shrink: 0;
+  width: 100%;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 4px,
+    var(--dash-color) 4px,
+    var(--dash-color) 10px
+  );
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+}
+
+.dashed-divider--vertical {
+  width: 1px;
+  height: auto;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent,
+    transparent 4px,
+    var(--dash-color) 4px,
+    var(--dash-color) 10px
+  );
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
+}
+
+/* Section eyebrow above section headings. Plain text — no chip, no border, no
+   fill; it reads as a label rather than a control. */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.4286;
+  letter-spacing: -0.07px;
+  color: var(--color-text-white);
+  white-space: nowrap;
+}
+
+/* Icons inside the pill scale with the fluid em system (20px at design width) */
+.section-label img {
+  width: 1.4286em;
+  height: 1.4286em;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  width: fit-content;
+  padding: 0.875em 1.5em;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.08px;
+  color: var(--color-text-white);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-base), opacity var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  /* Dark text on the accent fill — white fails WCAG AA at ~3.4:1 on #fe4a00 */
+  color: var(--color-bg-dark);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #ff6524;
+}
+
+.btn-ghost {
+  background-image: var(--gradient-ghost);
+  border-color: rgba(235, 235, 239, 0.19);
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-border-strong);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Section heading pattern: white line + orange line */
+.section-heading {
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  line-height: 1.1667;
+  color: var(--color-text-white);
+}
+
+.section-heading .accent {
+  color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Focus & Accessibility
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.sr-only:focus {
+  position: fixed;
+  top: 0.5em;
+  left: 0.5em;
+  z-index: 9999;
+  width: auto;
+  height: auto;
+  padding: 0.75em 1.5em;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: var(--color-accent);
+  color: var(--color-bg-dark);
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

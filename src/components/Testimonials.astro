@@ -1,0 +1,203 @@
+---
+// TODO: Replace with real customer reviews (e.g. from the client's Google profile)
+// before launch.
+const testimonials = [
+  {
+    quote:
+      "Helt otroligt resultat! Min sju år gamla Volvo ser bättre ut än när jag hämtade den hos handlaren. Man ser att de verkligen brinner för det de gör.",
+    name: "Johan L.",
+    car: "Volvo XC60",
+  },
+  {
+    quote:
+      "Lämnade in bilen full av hundhår och sand efter sommaren. Fick tillbaka en bil som luktade och kändes helt ny. Kan varmt rekommendera!",
+    name: "Sara N.",
+    car: "Volkswagen Tiguan",
+  },
+  {
+    quote:
+      "Proffsigt bemötande från början till slut. Lackskyddet har hållit i över ett år nu och bilen är fortfarande lika lätt att tvätta.",
+    name: "Anders Ö.",
+    car: "Tesla Model 3",
+  },
+  {
+    quote:
+      "Snabbt, smidigt och riktigt bra pris. Det märks att de kan sina grejer – repor och swirls i lacken är helt borta.",
+    name: "Emma B.",
+    car: "Audi A4",
+  },
+];
+
+const initials = (name: string) => name.charAt(0).toUpperCase();
+---
+
+<section class="testimonials" id="omdomen">
+  <div class="container">
+    <header class="testimonials-head" data-animate="fade-up">
+      <span class="section-label">Omdömen</span>
+      <div class="testimonials-head-row">
+        <h2 class="section-heading">
+          Vad våra kunder <span class="accent">säger om oss</span>
+        </h2>
+      </div>
+    </header>
+
+    <div class="testimonials-body">
+      <ul class="testimonials-grid" data-animate="stagger">
+        {
+          testimonials.map((item) => (
+            <li class="testimonial-card">
+              <img
+                class="stars"
+                src="/assets/images/rating-stars.svg"
+                alt="Betyg 5 av 5"
+                width="136"
+                height="24"
+                loading="lazy"
+              />
+              <blockquote>{item.quote}</blockquote>
+              <div class="reviewer">
+                <span class="reviewer-avatar" aria-hidden="true">{initials(item.name)}</span>
+                <div class="reviewer-meta">
+                  <span class="reviewer-name">{item.name}</span>
+                  <span class="reviewer-car">{item.car}</span>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonials {
+    padding-block: 5em; /* 80px */
+    background-color: var(--color-bg-dark);
+  }
+
+  .testimonials-head {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5em;
+  }
+
+  .testimonials-head .section-label {
+    align-self: flex-start;
+  }
+
+  .testimonials-head-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2em;
+  }
+
+  .section-heading {
+    max-width: 36.75em; /* 588px */
+  }
+
+  /* ---------- Cards ---------- */
+  .testimonials-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.875em; /* 30px */
+    margin-top: 3.75em; /* 60px */
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* Min design height, but rows grow so longer real reviews never clip */
+    grid-auto-rows: minmax(17.375em, auto);
+    gap: 1em; /* 16px */
+    width: 100%;
+  }
+
+  .testimonial-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2em; /* 32px */
+    padding: 1.5em; /* 24px */
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(12px);
+  }
+
+  .testimonial-card .stars {
+    width: 8.5em; /* 136px */
+    height: 1.5em;
+  }
+
+  .testimonial-card blockquote {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .reviewer {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+  }
+
+  .reviewer-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5em; /* 40px */
+    height: 2.5em;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #ff8c3c 0%, #fe4a00 100%);
+    border-radius: 50%;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text-white);
+  }
+
+  .reviewer-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+  }
+
+  .reviewer-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4286;
+    color: var(--color-text-white);
+  }
+
+  .reviewer-car {
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--color-text-body);
+  }
+
+  @media screen and (max-width: 991px) {
+    .testimonials-head-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5em;
+    }
+
+    .section-heading {
+      max-width: none;
+    }
+
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: auto;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .testimonials {
+      padding-block: 3.5em;
+    }
+  }
+</style>

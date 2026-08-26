@@ -1,0 +1,291 @@
+---
+import { site } from "../data/site";
+
+const links = [
+  { label: "Hem", href: "#" },
+  { label: "Tjänster", href: "#tjanster" },
+  { label: "Priser", href: "#priser" },
+  { label: "Galleri", href: "#galleri" },
+  { label: "Vanliga frågor", href: "#faq" },
+  { label: "Kontakt", href: "#kontakt" },
+];
+---
+
+<header class="site-header">
+  <nav class="navbar" aria-label="Huvudmeny">
+    <a class="brand" href="/" aria-label={`${site.fullName} — startsida`}>
+      <!-- Full lockup on wider screens, mark only when the pill gets tight -->
+      <img
+        class="brand-lockup"
+        src="/assets/brand/logo-horizontal.svg"
+        alt=""
+        width="659"
+        height="96"
+      />
+      <img
+        class="brand-mark"
+        src="/assets/brand/logo-mark.svg"
+        alt=""
+        width="242"
+        height="149"
+      />
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="nav-actions">
+      <a class="signup btn btn-primary" href="#kontakt">Boka tid</a>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="Öppna eller stäng menyn"
+        aria-expanded="false"
+        aria-controls="nav-links"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<style>
+  /* Floating pill fixed over the page — content scrolls underneath, blurred
+     through the translucent surface. No scroll JS; the look never changes. */
+  .site-header {
+    position: fixed;
+    top: var(--header-offset);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: min(94%, 52em);
+    /* The section surface at 72% so the pill reads as the same material as
+       the cards it floats over — derived, so it tracks --color-bg-dark. */
+    background-color: color-mix(in srgb, var(--color-bg-dark) 72%, transparent);
+    border-radius: 2em; /* 32px — full pill look, matches the section radius language */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    min-height: var(--header-height);
+    padding: 0.75em 1.5em;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* No `display` here — `.brand img` would outrank the `.brand-mark` /
+     `.brand-lockup` display rules below and show both logos at once.
+     The global img reset already provides display: block. */
+  .brand img {
+    width: auto;
+  }
+
+  .brand-lockup {
+    height: 1.625em; /* 26px */
+  }
+
+  /* Mark-only fallback, swapped in at the narrowest widths */
+  .brand-mark {
+    display: none;
+    height: 1.875em; /* 30px */
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 0.5em 0.45em;
+    font-size: var(--text-sm); /* 14px */
+    font-weight: 500;
+    line-height: 1.4286; /* 20/14 */
+    color: var(--color-text-white);
+    white-space: nowrap;
+    transition: opacity var(--transition-base);
+  }
+
+  .nav-links a:hover {
+    opacity: 0.75;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.625em;
+    flex-shrink: 0;
+  }
+
+  /* Colors/hover come from the global .btn-primary; only the compact pill
+     sizing is local. */
+  .signup {
+    min-height: 2.25em; /* 36px */
+    padding: 0.375em 1em;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+  }
+
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3125em;
+    width: 2.25em;
+    height: 2.25em;
+    padding: 0.5em;
+  }
+
+  .nav-toggle span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: var(--color-text-white);
+    border-radius: 2px;
+    transition: transform var(--transition-base), opacity var(--transition-base);
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(0.4375em) rotate(45deg);
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-0.4375em) rotate(-45deg);
+  }
+
+  /* Tablet & below — links collapse into a detached dropdown card below the
+     pill (not a drawer: no overlay, no scroll lock, closes on link click) */
+  @media screen and (max-width: 991px) {
+    /* 2.75em = 44px touch target for both header controls */
+    .nav-toggle {
+      display: flex;
+      width: 2.75em;
+      height: 2.75em;
+      padding: 0.75em;
+    }
+
+    .signup {
+      /* Deliberately px, not em. A tap target is a physical-size requirement —
+         it must not ride the fluid type scale, which shrinks the button to
+         36px on a 320px phone exactly where the finger needs it most. */
+      min-height: 44px;
+    }
+
+    .nav-links {
+      position: absolute;
+      top: calc(100% + 0.75em);
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.75em 1.5em;
+      background-color: var(--color-bg-dark);
+      border-radius: var(--radius-card);
+      /* The dropdown hangs from a fixed pill, so the page cannot scroll it
+         into view — on short (landscape) viewports it must scroll itself. */
+      max-height: calc(100vh - var(--header-offset) - var(--header-height) - 2em);
+      max-height: calc(100dvh - var(--header-offset) - var(--header-height) - 2em);
+      overflow-y: auto;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-0.5em);
+      pointer-events: none;
+      transition: opacity var(--transition-base), transform var(--transition-base),
+        visibility var(--transition-base);
+    }
+
+    .nav-links.is-open {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-links li + li {
+      border-top: 1px solid var(--color-border-soft);
+    }
+
+    .nav-links a {
+      padding: 0.875em 0.25em;
+      font-size: var(--text-base);
+      /* px, like .signup: the fluid type scale drops 2.75em to 42px on a
+         320px phone, just under the comfortable minimum. */
+      min-height: 44px;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .navbar {
+      padding-inline: 1em;
+    }
+
+    .brand-lockup {
+      display: none;
+    }
+
+    .brand-mark {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+  const links = document.querySelector<HTMLUListElement>("#nav-links");
+
+  const setOpen = (open: boolean) => {
+    toggle?.setAttribute("aria-expanded", String(open));
+    links?.classList.toggle("is-open", open);
+  };
+
+  toggle?.addEventListener("click", () => {
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+
+  links?.addEventListener("click", (event) => {
+    if ((event.target as HTMLElement).tagName !== "A") return;
+    setOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (toggle?.getAttribute("aria-expanded") !== "true") return;
+    // offsetParent is null when the toggle is display:none (desktop) — the
+    // menu state is stale then, and Escape must not be swallowed for it.
+    if (!toggle.offsetParent) return;
+    setOpen(false);
+    toggle.focus();
+  });
+
+  // Crossing up into the desktop layout discards the dropdown state, so a
+  // stale is-open can't linger on the always-visible desktop link row.
+  window.matchMedia("(min-width: 992px)").addEventListener("change", (event) => {
+    if (event.matches) setOpen(false);
+  });
+</script>

@@ -1,0 +1,37 @@
+---
+// Five-star rating mark, shared by the hero badge and the Google review cards.
+//
+// Sizing is inherited: the stars are 1em, so a parent controls them by setting
+// font-size on the element it wraps this in. (A `class` prop would not work —
+// Astro scopes styles per component, so the parent's class never matches.)
+interface Props {
+  label?: string;
+}
+
+const { label = "5 av 5 stjärnor" } = Astro.props;
+---
+
+<span class="stars" role="img" aria-label={label}>
+  {
+    Array.from({ length: 5 }).map(() => (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.31l-5.8 3.05 1.11-6.46-4.7-4.58 6.49-.94L12 2.5z" />
+      </svg>
+    ))
+  }
+</span>
+
+<style>
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1em;
+    color: #fbbc04; /* Google's review-star yellow */
+  }
+
+  .stars svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+  }
+</style>

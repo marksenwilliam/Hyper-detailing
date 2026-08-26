@@ -1,0 +1,179 @@
+---
+// Split card: 16:9 image on the left, copy on the right, separated by a dashed
+// rule. Stacks to a single column at ≤991px (divider becomes horizontal).
+import ImagePlaceholder from "./ImagePlaceholder.astro";
+
+const points = [
+  "Skonsam skumtvätt och maskinpolering",
+  "Anpassat upplägg för varje bil",
+];
+---
+
+<section class="showcase">
+  <div class="container">
+    <article class="showcase-card" data-animate="fade-up">
+      <div class="showcase-media">
+        <ImagePlaceholder
+          src="/assets/photos/3D_car_graphic_for_website_202608060743.jpeg"
+          alt="3D-visualisering av bilvård – svart sportbil som skumtvättas och poleras av robotarmar i studio med orange neonljus"
+          width={2752}
+          height={1536}
+          label="Sektion — 3D-visualisering"
+        />
+      </div>
+
+      <div class="showcase-copy">
+        <h2 class="showcase-title">Rekond i toppklass</h2>
+        <p class="showcase-sub">
+          Avancerad utrustning och handpålagd omsorg – hela vägen.
+        </p>
+
+        <ul class="showcase-points">
+          {points.map((point) => <li>{point}</li>)}
+        </ul>
+
+        <a class="showcase-btn" href="#tjanster">
+          Läs mer
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12h13M13 6.5L18.5 12L13 17.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .showcase {
+    background-color: var(--color-bg-dark);
+  }
+
+  /* Two cells, no gap: the image fills its half edge to edge, the copy cell
+     carries the padding. */
+  .showcase-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  /* ---------- Media ---------- */
+  .showcase-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  /* Fill the 16:9 frame regardless of the source's own ratio */
+  .showcase-media :global(.img-slot) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto !important;
+  }
+
+  .showcase-media :global(.img-placeholder) {
+    border: none;
+    border-radius: 0;
+  }
+
+  /* ---------- Copy ---------- */
+  .showcase-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.75em;
+    padding: var(--cell-padding);
+    border-left: 1px solid var(--color-border);
+  }
+
+  .showcase-title {
+    font-size: 2em; /* 32px */
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    color: var(--color-text-white);
+  }
+
+  .showcase-sub {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .showcase-points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-top: 0.25em;
+  }
+
+  .showcase-points li {
+    position: relative;
+    padding-left: 1.125em;
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-white);
+  }
+
+  .showcase-points li::before {
+    content: "";
+    position: absolute;
+    top: 0.55em;
+    left: 0;
+    width: 0.3125em;
+    height: 0.3125em;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+  }
+
+  .showcase-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625em;
+    margin-top: 1em;
+    padding: 0.875em 1.75em;
+    background-color: var(--color-accent);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4286;
+    color: var(--color-bg-dark); /* dark on orange — passes WCAG AA */
+    white-space: nowrap;
+    transition: background-color var(--transition-base);
+  }
+
+  .showcase-btn:hover {
+    background-color: #ff6524;
+  }
+
+  .showcase-btn svg {
+    width: 1.143em; /* 16px */
+    height: 1.143em;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media screen and (max-width: 991px) {
+    .showcase-card {
+      grid-template-columns: 1fr;
+    }
+
+    /* Seam flips to horizontal in the stacked layout */
+    .showcase-copy {
+      border-left: none;
+      border-top: 1px solid var(--color-border);
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .showcase-title {
+      font-size: 1.625em;
+    }
+  }
+</style>

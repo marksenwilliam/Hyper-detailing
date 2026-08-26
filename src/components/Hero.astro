@@ -1,0 +1,772 @@
+---
+// Full-bleed hero: a video/photo stage with a centered headline and CTA over
+// it. Sized to the viewport minus the header band above it (--header-height) —
+// the header sits in the page flow, so nothing overlaps the stage.
+import ImagePlaceholder from "./ImagePlaceholder.astro";
+import Stars from "./Stars.astro";
+import { googleReviewsUrl } from "../data/reviews";
+import { site } from "../data/site";
+
+// Links straight to the Google profile once there is a URL to link to;
+// until then the badge renders as plain text rather than a dead anchor.
+const RatingTag = googleReviewsUrl ? "a" : "div";
+
+// Decorative sparks that float up inside the primary CTA. Ported from the
+// floating dock button on marksenmedia.com's offer landing page — the staggered
+// durations/delays are what keep the rise from looking mechanical.
+const ctaPoints = [
+  { left: "10%", opacity: "1", duration: "2.35s", delay: "0.2s" },
+  { left: "30%", opacity: "0.7", duration: "2.5s", delay: "0.5s" },
+  { left: "25%", opacity: "0.8", duration: "2.2s", delay: "0.1s" },
+  { left: "44%", opacity: "0.6", duration: "2.05s", delay: "" },
+  { left: "50%", opacity: "1", duration: "1.9s", delay: "" },
+  { left: "75%", opacity: "0.5", duration: "1.5s", delay: "1.5s" },
+  { left: "88%", opacity: "0.9", duration: "2.2s", delay: "0.2s" },
+  { left: "58%", opacity: "0.8", duration: "2.25s", delay: "0.2s" },
+  { left: "98%", opacity: "0.6", duration: "2.6s", delay: "0.1s" },
+  { left: "65%", opacity: "1", duration: "2.5s", delay: "0.2s" },
+];
+
+---
+
+<section class="hero">
+  <!-- The video and everything laid over it. Fills the screen below the header
+       band, so the service strip that follows starts under the fold. On mobile
+       the stage is shorter (75svh) with the strip stacked beneath it. -->
+  <div class="hero-stage">
+    <!-- Fallback still, eagerly loaded: this is what fills the frame while the
+         video buffers, and what stays if it never plays at all. Each cut's own
+         first frame, so there is no jump when playback starts.
+         Paths are unencoded on purpose — ImagePlaceholder stats them on disk. -->
+    <ImagePlaceholder
+      class="hero-img"
+      src="/assets/photos/hero-fallback-desktop.webp"
+      mobileSrc="/assets/photos/hero-fallback-mobile.webp"
+      alt="Nytvättad vit BMW i Hyper Detailings tvätthall i Umeå"
+      width={2560}
+      height={1440}
+      label="Hero — fallbackbild"
+      loading="eager"
+      fetchpriority="high"
+    />
+
+    <!-- Motion layer, sitting on top of the still above: a landscape cut for
+         desktop and a portrait one for phones, each shown only at its own
+         breakpoint. The photo stays behind them as poster and fallback, so a
+         video that is blocked, still loading or unsupported never leaves a
+         blank hero. Decorative — the <img> behind them carries the alt text. -->
+    <video
+      class="hero-video hero-video--desktop"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/assets/photos/hero-fallback-desktop.webp"
+      aria-hidden="true"
+      tabindex="-1"
+    >
+      <source src="/assets/photos/hero-video-desktop.mp4" type="video/mp4" />
+    </video>
+
+    <video
+      class="hero-video hero-video--mobile"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/assets/photos/hero-fallback-mobile.webp"
+      aria-hidden="true"
+      tabindex="-1"
+    >
+      <source
+        src="/assets/photos/hero-video-mobile.mp4"
+        type="video/mp4"
+      />
+    </video>
+
+    <div class="hero-content">
+      <div class="hero-copy">
+        <RatingTag
+          class="hero-rating"
+          href={googleReviewsUrl || undefined}
+          target={googleReviewsUrl ? "_blank" : undefined}
+          rel={googleReviewsUrl ? "noopener noreferrer" : undefined}
+        >
+          <img
+            class="hero-rating-logo"
+            src="/assets/icons/icon-google.svg"
+            alt="Google"
+            width="20"
+            height="20"
+          />
+          <span class="hero-rating-score">5,0</span>
+          <span class="hero-rating-stars"><Stars /></span>
+          <span class="hero-rating-label">Google-recensioner</span>
+        </RatingTag>
+
+        <div class="hero-text">
+          <h1 class="hero-title">Bilrekond i Umeå</h1>
+          <p class="hero-sub">Bilvård och tvätt för din pärla</p>
+        </div>
+
+        <div class="hero-actions">
+          <!-- Primary CTA: the animated button from the Marksen Media offer
+               landing page (glow gradient, rising sparks, corner fold that peels
+               away on hover, rocket that draws itself), recolored to orange. -->
+          <a class="cta-rocket" href="#kontakt">
+            <span class="cta-rocket-fold" aria-hidden="true"></span>
+            <span class="cta-rocket-points" aria-hidden="true">
+              {
+                ctaPoints.map((pt) => (
+                  <span
+                    class="cta-rocket-point"
+                    style={`left: ${pt.left}; opacity: ${pt.opacity}; animation-duration: ${pt.duration};${pt.delay ? ` animation-delay: ${pt.delay};` : ""}`}
+                  />
+                ))
+              }
+            </span>
+            <span class="cta-rocket-inner">
+              Boka nu
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="white"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="cta-rocket-icon"
+                aria-hidden="true"
+              >
+                <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google Maps widget in the stage's lower-left corner: a glass card in
+         the same style as the rating pill, linking out to the business on
+         Google Maps. After .hero-content in the DOM so keyboard focus reaches
+         the CTA before it. Hidden on mobile, where the CTA owns the bottom
+         edge. -->
+    <a
+      class="hero-map"
+      href="https://maps.app.goo.gl/4qqXahKoziN2y8rDA"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="hero-map-pin" aria-hidden="true">
+        <img src="/assets/icons/icon-pin.svg" alt="" width="20" height="20" />
+      </span>
+
+      <span class="hero-map-text">
+        <span class="hero-map-name">{site.fullName}</span>
+        <span class="hero-map-addr">{site.address}, {site.city}</span>
+        <span class="hero-map-cta">
+          <img src="/assets/icons/icon-google.svg" alt="" width="14" height="14" />
+          Öppna i Google Maps
+        </span>
+      </span>
+
+      <svg
+        class="hero-map-arrow"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 17L17 7M9 7h8v8"></path>
+      </svg>
+    </a>
+  </div>
+
+</section>
+
+<style>
+  /* Surface, radius, and clipping come from the global section-card rule;
+     .hero-stage below keeps its own clip for the scaled media. */
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Video cell. The header floats above the page, so the hero card itself
+     fills the first screen: viewport minus the page gutter above and below.
+     overflow:hidden matters — the image is scaled up on desktop and would
+     otherwise paint over the strip (it is positioned, the strip is not). */
+  .hero-stage {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - var(--page-gutter) * 2); /* fallback */
+    min-height: calc(100svh - var(--page-gutter) * 2); /* stable under mobile URL bars */
+    overflow: hidden;
+  }
+
+  /* Direct child only: this is the full-bleed fallback still. It MUST NOT
+     match the service-card photos further down — they are .img-slot too, and
+     an unscoped `.hero :global(.img-slot)` absolutely positions all of them
+     over the entire section, burying the video and the cards. */
+  .hero-stage > :global(.img-slot) {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    height: 100%;
+    aspect-ratio: auto !important; /* fill the viewport box, not the image ratio */
+  }
+
+  /* Both cuts share the framing and are hidden until their breakpoint claims
+     them, so a phone never fetches the landscape file and a desktop never
+     fetches the portrait one — a display:none video is not rendered, and
+     preload="none" stops the browser prefetching it anyway. */
+  .hero-video {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* above .img-slot, below .hero-content */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media screen and (min-width: 768px) {
+    .hero-video--desktop {
+      display: block;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .hero-video--mobile {
+      display: block;
+    }
+  }
+
+  /* Must come after both breakpoint rules to win at equal specificity — anyone
+     who asked for less motion gets the still photo instead. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-video {
+      display: none;
+    }
+  }
+
+  /* ---------- Overlay content ---------- */
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    /* Only the copy lives here now — the service strip is a sibling below */
+    justify-content: flex-start;
+    width: 100%;
+    max-width: var(--size-container);
+    margin-inline: auto;
+    /* Top edge clears the floating header pill, which overlays the video */
+    padding: calc(var(--header-offset) + var(--header-height) + 1em)
+      var(--container-padding) var(--cell-padding);
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.875em; /* 30px */
+    text-align: center;
+  }
+
+  /* Google rating badge — glass pill above the headline */
+  .hero-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em; /* 7px at this font-size */
+    padding: 0.5em 1em;
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-pill);
+    backdrop-filter: blur(6px);
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-white);
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  /* Only ever an anchor once there is a real profile URL to point at */
+  a.hero-rating:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-rating-logo {
+    width: 1.2857em; /* 18px */
+    height: 1.2857em;
+  }
+
+  .hero-rating-score {
+    font-weight: 700;
+  }
+
+  /* Sets the star size — Stars.astro draws them at 1em */
+  .hero-rating-stars {
+    display: inline-flex;
+    font-size: 0.9286em; /* 13px */
+  }
+
+  .hero-rating-label {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  /* Headline and sub-headline sit closer to each other than the CTA does to
+     either, so they group as one block */
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75em; /* 12px */
+  }
+
+  .hero-title {
+    font-size: 3.375em; /* 54px */
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-transform: uppercase; /* the copy stays sentence case in the markup */
+    color: var(--color-text-white);
+    /* Layered rather than one wide blur: the tight pass keeps the glyph edges
+       crisp against a busy frame, the wider passes darken the area behind the
+       whole line. Carries the legibility on its own now that the scrim is
+       gone — and the video's opening frames are its brightest. */
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.7),
+      0 2px 14px rgba(0, 0, 0, 0.6),
+      0 6px 36px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-sub {
+    max-width: 26em;
+    font-size: var(--text-lg); /* 20px — a step up from the section subs, to
+                                  carry under a 54px headline */
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.92); /* the page's body grey goes muddy on the photo */
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.7),
+      0 2px 10px rgba(0, 0, 0, 0.6),
+      0 4px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75em; /* 12px */
+  }
+
+  /* ---------- Primary CTA (animated rocket button) ----------
+     The hero's only call to action. Ported from the floating dock button on
+     marksenmedia.com's offer landing page. Same construction, orange instead of
+     blue: the base fill is a deeper orange than --color-accent so the white
+     label and rocket clear 4.5:1 (white on #fe4a00 is only 3.4:1), and the
+     brand's lighter orange drives the glow. Typography follows the hero's
+     uppercase, wide-tracked treatment. */
+  .cta-rocket {
+    --cta-round: 0.75em;
+    --cta-base: #d33f00;
+    --cta-glow: 255 140 60; /* #ff8c3c — same light orange as the service icons */
+    position: relative; /* containing block for the fold, sparks and glow layers */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0.857em 1.43em; /* 12px / 20px at this font-size */
+    border: none; /* no outline reset here — the global :focus-visible ring stays */
+    border-radius: var(--cta-round);
+    background:
+      radial-gradient(
+        65.28% 65.28% at 50% 100%,
+        rgb(var(--cta-glow) / 0.85) 0%,
+        rgb(var(--cta-glow) / 0) 100%
+      ),
+      linear-gradient(0deg, var(--cta-base), var(--cta-base));
+    box-shadow: 0 25px 50px -12px rgba(211, 63, 0, 0.45);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  /* Two stacked insets: a 1px light rim, then the fill repeated 2px in so the
+     rim reads as a hairline edge rather than a border. */
+  .cta-rocket::before,
+  .cta-rocket::after {
+    content: "";
+    position: absolute;
+    inset: var(--cta-space);
+    z-index: 0;
+    border-radius: calc(var(--cta-round) - var(--cta-space));
+    transition: all 0.5s ease-in-out;
+  }
+
+  .cta-rocket::before {
+    --cta-space: 1px;
+    background: linear-gradient(177.95deg, rgba(255, 255, 255, 0.19) 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .cta-rocket::after {
+    --cta-space: 2px;
+    background:
+      radial-gradient(
+        65.28% 65.28% at 50% 100%,
+        rgb(var(--cta-glow) / 0.85) 0%,
+        rgb(var(--cta-glow) / 0) 100%
+      ),
+      linear-gradient(0deg, var(--cta-base), var(--cta-base));
+  }
+
+  .cta-rocket:active {
+    transform: scale(0.95);
+  }
+
+  .cta-rocket-inner {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.571em; /* 8px */
+    width: 100%;
+    font-family: var(--font-body);
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-white);
+    transition: color 0.2s ease-in-out;
+  }
+
+  .cta-rocket-icon {
+    width: 1.143em; /* 16px */
+    height: 1.143em;
+    transition: fill 0.1s linear;
+  }
+
+  /* Dog-ear in the top-right corner; peels away on hover */
+  .cta-rocket-fold {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background: radial-gradient(
+      100% 75% at 55%,
+      rgb(var(--cta-glow) / 0.85) 0%,
+      rgb(var(--cta-glow) / 0) 100%
+    );
+    box-shadow: 0 0 3px black;
+    border-top-right-radius: var(--cta-round);
+    border-bottom-left-radius: 0.5em;
+    transition: all 0.5s ease-in-out;
+  }
+
+  /* The lifted "underside" of the fold — an off-white square rotated 45° and
+     shoved into the corner, so its edge cuts the diagonal that reads as the
+     crease. The shove must stay proportional to the fold (the original is 18px
+     against a fixed 1rem fold); in px it would slide clean out of a fold this
+     small once the fluid scale shrinks it, taking the white triangle with it. */
+  .cta-rocket-fold::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150%;
+    height: 150%;
+    background-color: #e8e8e8;
+    transform: rotate(45deg) translateX(0%) translateY(-1.125em); /* 18/16 of the fold */
+    pointer-events: none;
+  }
+
+  .cta-rocket:hover .cta-rocket-fold {
+    margin-top: -1em;
+    margin-right: -1em;
+  }
+
+  /* Sparks rising through the fill */
+  .cta-rocket-points {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .cta-rocket-point {
+    position: absolute;
+    bottom: -10px;
+    width: 2px;
+    height: 2px;
+    background-color: #fff;
+    border-radius: 9999px;
+    pointer-events: none;
+    animation: floating-points infinite ease-in-out;
+  }
+
+  @keyframes floating-points {
+    0% {
+      transform: translateY(0);
+    }
+    85% {
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(-55px);
+      opacity: 0;
+    }
+  }
+
+  /* Rocket draws itself on hover, then fills back in */
+  .cta-rocket:focus .cta-rocket-icon {
+    fill: white;
+  }
+
+  .cta-rocket:hover .cta-rocket-icon {
+    fill: transparent;
+    animation: dasharray 1s linear forwards, filled 0.1s linear forwards 0.95s;
+  }
+
+  @keyframes dasharray {
+    from {
+      stroke-dasharray: 0 0 0 0;
+    }
+    to {
+      stroke-dasharray: 68 68 0 0;
+    }
+  }
+
+  @keyframes filled {
+    to {
+      fill: white;
+    }
+  }
+
+  /* ---------- Map widget ---------- */
+  /* Glass card in the same family as the rating pill: dark translucent fill,
+     hairline border, blur. Interactive, so it may carry a radius (the
+     square-corner rule is for structural surfaces only). */
+  .hero-map {
+    position: absolute;
+    left: 1.5em;
+    bottom: 1.5em;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.875em;
+    padding: 0.875em 1.125em;
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 0.75em; /* matches the CTA button */
+    backdrop-filter: blur(6px);
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .hero-map:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  /* Round pin badge, like the footer's social buttons */
+  .hero-map-pin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5em; /* 40px */
+    height: 2.5em;
+    border: 1px solid rgba(254, 74, 0, 0.5);
+    border-radius: 50%;
+    background-color: rgba(254, 74, 0, 0.12);
+  }
+
+  .hero-map-pin img {
+    width: 1.25em; /* 20px */
+    height: 1.25em;
+  }
+
+  .hero-map-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+  }
+
+  .hero-map-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4286;
+    color: var(--color-text-white);
+  }
+
+  .hero-map-addr {
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .hero-map-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    margin-top: 0.25em;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-map-cta img {
+    width: 1.1667em; /* 14px */
+    height: 1.1667em;
+  }
+
+  .hero-map-arrow {
+    flex-shrink: 0;
+    align-self: flex-start;
+    width: 1em;
+    height: 1em;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color var(--transition-base), transform var(--transition-base);
+  }
+
+  .hero-map:hover .hero-map-arrow {
+    color: var(--color-accent);
+    transform: translate(0.125em, -0.125em);
+  }
+
+  /* On phones the CTA sits up in the copy flow, so the bottom edge is free
+     for the card — tighter inset to match the narrower content padding */
+  @media screen and (max-width: 767px) {
+    .hero-map {
+      left: 1em;
+      bottom: 1em;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+
+  /* From tablet up the CTA is the stage's only control, so it carries a
+     bigger label and a bigger tap target than a body-copy button would. */
+  @media screen and (min-width: 768px) {
+    .cta-rocket {
+      font-size: var(--text-lg); /* 20px */
+      padding: 0.9em 2em;
+    }
+  }
+
+  /* Desktop: the copy block claims the stage's full height so the CTA can
+     drop to its bottom edge, well below the headline. Held back until 992px
+     because narrower stages put the map card in the same band. */
+  @media screen and (min-width: 992px) {
+    .hero-copy {
+      flex: 1;
+    }
+
+    .hero-actions {
+      margin-top: auto;
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+    .hero-title {
+      font-size: 2.75em;
+    }
+
+  }
+
+  @media screen and (max-width: 767px) {
+    .hero-title {
+      font-size: 2.25em;
+    }
+
+    .hero-sub {
+      font-size: var(--text-base);
+    }
+
+    /* Phones stack the stage's bottom corner: the map card keeps the very
+       bottom-left, and the CTA sits centred directly above it. --hero-map-band
+       is the room the card claims (its height + its inset + a gap); the copy
+       column pads itself by exactly that, so the button lands above the card
+       instead of on it. One value, both rules — they cannot drift apart. */
+    .hero-stage {
+      --hero-map-band: 7em;
+    }
+
+    .hero-copy {
+      flex: 1;
+    }
+
+    .hero-actions {
+      margin-top: auto;
+    }
+
+    /* Overrides the shorthand's --cell-padding bottom, not the sides */
+    .hero-content {
+      padding-bottom: var(--hero-map-band);
+    }
+
+    .cta-rocket {
+      font-size: var(--text-2xl); /* 24px */
+      padding: 0.9em 2em;
+    }
+
+    /* The card is supporting information next to the CTA, so it steps down a
+       size. One font-size does it — every dimension inside is em-based. */
+    .hero-map {
+      font-size: 0.8125em; /* 13px */
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .hero-title {
+      font-size: 1.875em;
+    }
+
+    /* The CTA stays content-width — just keep the 44px tap height */
+    .cta-rocket {
+      min-height: 2.75em;
+    }
+
+    /* Narrower stage: the map card's text wraps to one more line */
+    .hero-stage {
+      --hero-map-band: 7.5em;
+    }
+  }
+</style>
+
+<script is:inline>
+  // CSS already hides the hero video for reduced-motion users, but a hidden
+  // <video> can still decode in the background. Drop its source so it neither
+  // downloads nor plays.
+  (() => {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.querySelectorAll("video.hero-video").forEach((video) => {
+      video.autoplay = false;
+      video.pause();
+      video.querySelectorAll("source").forEach((source) => source.remove());
+      video.load();
+    });
+  })();
+</script>

@@ -1,0 +1,10 @@
+# Normalise line endings so a Windows checkout does not show every file as
+# modified. Binary assets are left untouched.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.mp4 binary
+*.ico binary

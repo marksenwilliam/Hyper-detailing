@@ -1,0 +1,720 @@
+---
+// One section card holding two rotator "windows" — a customer review and a
+// customer-car photo — each showing ONE item at a time. A new item slides in
+// from the right on a timer (reviews dwell 4s, cars 2s). Replaces the old
+// pair of auto-scrolling marquee bands (ReviewMarquee.astro + Marquee.astro).
+//
+// Every review shows five stars regardless of source; the source line under
+// the name still names where each review came from. Quotes are VERBATIM from
+// the client's Google/Facebook profiles — do not tidy them up.
+import ImagePlaceholder from "./ImagePlaceholder.astro";
+import Stars from "./Stars.astro";
+import { reviews } from "../data/reviews";
+import { galleryShots } from "../data/gallery";
+
+// Prev/next controls, rendered into both rotators: same disc, mirrored
+// chevron.  is the step the script applies to the current index.
+const navArrows = [
+  { dir: -1, side: 'prev', label: 'Föregående', path: 'M15 18l-6-6 6-6' },
+  { dir: 1, side: 'next', label: 'Nästa', path: 'M9 18l6-6-6-6' },
+];
+
+const sources = {
+  google: { label: "Google", icon: "/assets/icons/icon-google.svg" },
+  facebook: { label: "Facebook", icon: "/assets/icons/icon-facebook.svg" },
+} as const;
+---
+
+{/* Carries the #galleri anchor (nav + footer link) */}
+<section class="spotlight" id="galleri" aria-label="Kundomdömen och kundbilar">
+  <div class="spotlight-aside">
+    <header class="spotlight-copy" data-animate="fade-up">
+      <span class="section-label">Galleri &amp; omdömen</span>
+      <h2 class="section-heading">
+        Nöjda kunder, <span class="accent">blanka bilar</span>
+      </h2>
+      <p class="spotlight-sub">
+        Varje bild är en riktig kundbil från anläggningen i Umeå – och varje
+        omdöme kommer ordagrant från våra kunder på Google och Facebook.
+      </p>
+    </header>
+
+    {/* Rating row + review rotator share ONE panel; the dashed accent divider
+        separates them instead of each carrying its own box. */}
+    <div class="spotlight-panel">
+      <p class="spotlight-rating">
+        <span class="spotlight-rating-stars"><Stars /></span>
+        <span><strong>5,0</strong> på Google</span>
+      </p>
+
+      <span class="dashed-divider" aria-hidden="true"></span>
+
+      <div
+        class="spotlight-window spotlight-window--reviews"
+        data-rotator
+        data-dwell="4000"
+      >
+      {
+        reviews.map((review, index) => (
+        <article class:list={["spotlight-slide", { "is-active": index === 0 }]}>
+          <div class="review-card">
+            <div class="review-head">
+              <span class="review-avatar" aria-hidden="true">
+                {review.name.charAt(0)}
+              </span>
+              <div class="review-who">
+                <p class="review-name">{review.name}</p>
+                <p class="review-source">
+                  <img
+                    src={sources[review.source].icon}
+                    alt=""
+                    width="14"
+                    height="14"
+                    loading="lazy"
+                  />
+                  Recension från {sources[review.source].label}
+                </p>
+              </div>
+            </div>
+
+            <span class="review-stars">
+              <Stars />
+            </span>
+
+            <p class="review-quote">{review.quote}</p>
+          </div>
+          </article>
+        ))
+      }
+
+      {/* Manual prev/next. The timer keeps running — a click just jumps
+          and earns the new slide a fresh full period. */}
+      {reviews.length > 1 && navArrows.map((arrow) => (
+        <button
+          class={`spotlight-arrow spotlight-arrow--${arrow.side}`}
+          type="button"
+          data-nav={arrow.dir}
+          aria-label={`${arrow.label} omdöme`}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d={arrow.path} />
+          </svg>
+        </button>
+      ))}
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="spotlight-window spotlight-window--cars"
+    data-rotator
+    data-dwell="2000"
+  >
+    {
+      galleryShots.map((shot, index) => (
+        <div class:list={["spotlight-slide", { "is-active": index === 0 }]}>
+          <ImagePlaceholder
+            src={shot.src}
+            alt={shot.alt}
+            width={shot.width}
+            height={shot.height}
+            label="Kundbild"
+          />
+        </div>
+      ))
+    }
+
+    {/* Pill indicators (Solsegel-style): the active pill carries a fill that
+        sweeps over exactly one slide period; the rest are jump dots. */}
+    <div class="spotlight-dots">
+      {
+        galleryShots.map((_, index) => (
+          <button
+            class:list={["spotlight-dot", { "is-active": index === 0 }]}
+            type="button"
+            aria-label={`Visa bild ${index + 1}`}
+            aria-current={index === 0 ? "true" : undefined}
+            data-dot={index}
+          >
+            <span class="spotlight-dot-pill">
+              <span class="spotlight-dot-fill" />
+            </span>
+          </button>
+        ))
+      }
+    </div>
+
+    {/* Manual prev/next. The timer keeps running — a click just jumps
+        and earns the new slide a fresh full period. */}
+    {galleryShots.length > 1 && navArrows.map((arrow) => (
+      <button
+        class={`spotlight-arrow spotlight-arrow--${arrow.side}`}
+        type="button"
+        data-nav={arrow.dir}
+        aria-label={`${arrow.label} bild`}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d={arrow.path} />
+        </svg>
+      </button>
+    ))}
+  </div>
+</section>
+
+<style>
+  .spotlight {
+    /* Surface, radius and clipping come from the global section-card rule.
+       Desktop: copy + rating + review window on the left, the big car window
+       filling the right column (it stretches to the aside's height). */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: stretch;
+    gap: 1em;
+    padding: var(--cell-padding);
+  }
+
+  .spotlight-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    min-width: 0;
+  }
+
+  .spotlight-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+  }
+
+  .spotlight-sub {
+    max-width: 36em;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  /* One shared panel for the rating row + review rotator — borderless, the
+     faint surface alone lifts it off the section. Sits at the bottom of the
+     column, under the copy, like the reference layout. */
+  .spotlight-panel {
+    margin-top: auto;
+    background-color: var(--color-surface-faint);
+    border-radius: var(--radius-card);
+    overflow: hidden; /* keeps sliding reviews inside the rounded corners */
+  }
+
+  /* Left-aligned trust row; the dashed divider element below it is the only
+     separation between the rating and the slideshow. */
+  .spotlight-rating {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.625em;
+    padding: 1em 1.5em;
+    font-size: var(--text-sm);
+    color: var(--color-text-body);
+  }
+
+  .spotlight-rating strong {
+    font-weight: 600;
+    color: var(--color-text-white);
+  }
+
+  /* No font-size here: --text-sm is em-based, so restating it inside the
+     already-0.875em strip would compound to ~12px stars. Inheriting keeps
+     the stars at the strip's 14px. */
+  .spotlight-rating-stars {
+    display: inline-flex;
+  }
+
+  /* The min-height floor absorbs the small height change when the web font
+     swaps in and rewraps the longest quote. */
+  .spotlight-window--reviews {
+    min-height: 11em;
+  }
+
+  /* The fixed "window" a slide passes through. Slides are grid-stacked in the
+     same cell so the window is always as tall as its tallest slide — no
+     hardcoded heights, and hidden slides can't collapse it. The window itself
+     is chromeless; any surface/border lives on the variant (cars) or the
+     wrapping panel (reviews). */
+  .spotlight-window {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+  }
+
+  /* Off stage right by default. `visibility` (not display) keeps inactive
+     slides in layout for the shared-cell sizing above while removing them
+     from the accessibility tree, and the global reduced-motion kill switch
+     collapses the transition to an instant swap. */
+  .spotlight-slide {
+    grid-area: 1 / 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* Short reviews center in the window instead of hugging its top edge
+       (the window is as tall as the LONGEST review) */
+    justify-content: center;
+    min-width: 0;
+    visibility: hidden;
+    transform: translateX(100%);
+    /* Duration must match TRANSITION_MS in the script below */
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .spotlight-slide.is-active {
+    visibility: visible;
+    transform: none;
+  }
+
+  /* The outgoing slide stays visible while it exits stage left; the script
+     strips the class (returning it, hidden, to stage right) once the
+     transition is over. */
+  .spotlight-slide.is-leaving {
+    visibility: visible;
+    transform: translateX(-100%);
+  }
+
+  /* ---------- Review window ---------- */
+
+  /* The window is the card surface, so the review itself is just centered
+     content — no nested card box. */
+  .review-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em; /* 12px */
+    width: 100%;
+    max-width: 36em; /* 576px — a readable quote column on wide screens */
+    margin-inline: auto;
+    padding: 1.5em;
+  }
+
+  .review-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625em; /* 10px */
+  }
+
+  .review-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5em; /* 40px */
+    height: 2.5em;
+    background-image: var(--gradient-ghost);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text-white);
+  }
+
+  .review-who {
+    min-width: 0;
+  }
+
+  .review-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4286;
+    color: var(--color-text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .review-source {
+    display: flex;
+    align-items: center;
+    gap: 0.4286em; /* 6px */
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .review-source img {
+    width: 1.1667em; /* 14px */
+    height: 1.1667em;
+  }
+
+  .review-stars {
+    font-size: var(--text-sm); /* drives the star size — see Stars.astro */
+  }
+
+  /* Clamped so wildly different review lengths still give an even window */
+  .review-quote {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+    font-size: var(--text-sm);
+    line-height: 1.5714;
+    color: var(--color-text-body);
+  }
+
+  /* ---------- Car window ---------- */
+
+  /* No own height on desktop: the grid stretches it to the aside's height,
+     so the photo always matches the text + reviews column (its content is
+     absolutely positioned and contributes none of its own). */
+  .spotlight-window--cars {
+    min-height: 24em; /* 384px floor if the aside ever runs short */
+    background-color: var(--color-surface-faint);
+    border-radius: var(--radius-card);
+  }
+
+  .spotlight-window--cars :global(.img-slot) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto !important;
+  }
+
+  .spotlight-window--cars :global(.img-placeholder) {
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Tablet & below — back to stacked rows: copy, reviews, then the car band */
+  @media screen and (max-width: 991px) {
+    .spotlight {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .spotlight-window--cars {
+      min-height: 0;
+      height: 26em; /* 416px */
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .spotlight-window--cars {
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  /* ---------- Prev/next arrows ---------- */
+
+  /* Both rotators carry the same control: a glass disc pinned to the window's
+     side edges, same family as the hero's rating pill and map card. */
+  .spotlight-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25em; /* 36px */
+    height: 2.25em;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-white);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .spotlight-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.65);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Repeats the centring translate — a bare scale() would drop it */
+  .spotlight-arrow:active {
+    transform: translateY(-50%) scale(0.94);
+  }
+
+  .spotlight-arrow svg {
+    width: 1.125em; /* 18px */
+    height: 1.125em;
+  }
+
+  .spotlight-arrow--prev {
+    left: 0.75em;
+  }
+
+  .spotlight-arrow--next {
+    right: 0.75em;
+  }
+
+  /* The review window is text, not a photo: tuck the discs in and widen the
+     card's side padding so a long quote can never run under them. 3.25em
+     clears the 36px disc plus its 8px inset at every width. */
+  .spotlight-window--reviews .spotlight-arrow--prev {
+    left: 0.5em;
+  }
+
+  .spotlight-window--reviews .spotlight-arrow--next {
+    right: 0.5em;
+  }
+
+  .spotlight-window--reviews .review-card {
+    padding-inline: 3.25em;
+  }
+
+  @media screen and (max-width: 479px) {
+    .spotlight-arrow {
+      width: 2em; /* 32px */
+      height: 2em;
+    }
+
+    .spotlight-window--reviews .review-card {
+      padding-inline: 2.75em;
+    }
+  }
+
+  /* ---------- Slide indicators (cars) ---------- */
+
+  .spotlight-dots {
+    position: absolute;
+    bottom: 0.75em;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+
+  /* The button is taller than the pill it draws — a finger-sized hit area */
+  .spotlight-dot {
+    padding: 0.625em 0;
+    cursor: pointer;
+  }
+
+  .spotlight-dot-pill {
+    position: relative;
+    display: block;
+    width: 0.75em;
+    height: 0.375em; /* 6px */
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+
+  .spotlight-dot:hover .spotlight-dot-pill {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .spotlight-dot.is-active .spotlight-dot-pill {
+    width: 3em; /* 48px */
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* The sweep: scaleX 0→1 over one full slide period. display:none on
+     inactive dots both hides the fill and resets the animation, so it
+     restarts from zero every time a dot becomes active. The script sets
+     --progress-ms (dwell + transition) and pauses it with .is-paused
+     whenever the rotator itself is paused. */
+  .spotlight-dot-fill {
+    position: absolute;
+    inset: 0;
+    display: none;
+    background-color: var(--color-text-white);
+    border-radius: inherit;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .spotlight-dot.is-active .spotlight-dot-fill {
+    display: block;
+    animation: spotlight-progress var(--progress-ms, 2600ms) linear forwards;
+  }
+
+  .spotlight-window.is-paused .spotlight-dot-fill {
+    animation-play-state: paused;
+  }
+
+  @keyframes spotlight-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+</style>
+
+<script>
+  // Must match the .spotlight-slide transition duration
+  const TRANSITION_MS = 600;
+
+  // Auto-rotation never starts for reduced-motion users (same contract as
+  // the old marquees): the swap itself would be an instant hard cut, but
+  // content replacing itself every few seconds is still motion.
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-rotator]").forEach((rotator) => {
+    const slides = Array.from(
+      rotator.querySelectorAll<HTMLElement>(".spotlight-slide"),
+    );
+    if (slides.length < 2) return;
+
+    // data-dwell is how long a slide sits fully in view; the slide time is
+    // added on top so "4s" means four visible seconds, not 3.4.
+    const dwell = Number(rotator.dataset.dwell) || 4000;
+    const periodMs = dwell + TRANSITION_MS;
+    // The indicator fill sweeps over exactly one period
+    rotator.style.setProperty("--progress-ms", `${periodMs}ms`);
+
+    const dots = Array.from(
+      rotator.querySelectorAll<HTMLButtonElement>("[data-dot]"),
+    );
+    let current = 0;
+    let timer: number | undefined;
+    let cleanupTimer: number | undefined;
+
+    // A clipped slide never intersects the viewport, so its lazy images
+    // would only start fetching as the slide animates in — flip the next
+    // slide's images to eager one dwell ahead instead.
+    const preload = (index: number) => {
+      slides[index % slides.length]
+        .querySelectorAll<HTMLImageElement>("img[loading='lazy']")
+        .forEach((img) => {
+          img.loading = "eager";
+        });
+    };
+
+    const setDot = (index: number) => {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === index);
+        if (i === index) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+    };
+
+    const goTo = (target: number) => {
+      if (target === current) return;
+
+      // A rapid dot-click can land mid-transition: snap any still-exiting
+      // slide home first, since its own cleanup timeout is about to be
+      // replaced and would otherwise never fire.
+      window.clearTimeout(cleanupTimer);
+      for (const slide of slides) slide.classList.remove("is-leaving");
+
+      const leaving = slides[current];
+      current = target;
+      const entering = slides[current];
+
+      leaving.classList.remove("is-active");
+      leaving.classList.add("is-leaving");
+      entering.classList.add("is-active");
+      setDot(current);
+      preload(current + 1);
+
+      cleanupTimer = window.setTimeout(() => {
+        leaving.classList.remove("is-leaving");
+      }, TRANSITION_MS + 50);
+    };
+
+    const advance = () => goTo((current + 1) % slides.length);
+
+    // Restart the active indicator fill from zero — used whenever the timer
+    // (re)starts, which always begins a fresh full period.
+    const restartFill = () => {
+      const fill = rotator.querySelector<HTMLElement>(
+        ".spotlight-dot.is-active .spotlight-dot-fill",
+      );
+      if (!fill) return;
+      fill.style.animation = "none";
+      void fill.offsetWidth; // reflow so the removal sticks
+      fill.style.animation = "";
+    };
+
+    // The rotator only runs while it is on screen, the tab is visible, and a
+    // mouse isn't resting on it (hover-to-pause; guarded to real hover
+    // pointers so a phone tap can't stall the show).
+    let onScreen = false;
+    let hovered = false;
+
+    const sync = () => {
+      const shouldRun =
+        onScreen && !hovered && !document.hidden && !reduceMotion.matches;
+      rotator.classList.toggle("is-paused", !shouldRun);
+      if (shouldRun && timer === undefined) {
+        preload(current + 1);
+        restartFill();
+        timer = window.setInterval(advance, periodMs);
+      } else if (!shouldRun && timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+    };
+
+    // Every manual control routes through here: jump, then hand the new slide
+    // a fresh full period instead of the remainder of the old one.
+    const jumpTo = (target: number) => {
+      goTo(target);
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+      sync();
+    };
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => jumpTo(index));
+    });
+
+    // data-nav is the step to apply: -1 back, +1 forward, wrapping both ways.
+    rotator
+      .querySelectorAll<HTMLButtonElement>("[data-nav]")
+      .forEach((nav) => {
+        const step = Number(nav.dataset.nav) || 1;
+        nav.addEventListener("click", () => {
+          jumpTo((current + step + slides.length) % slides.length);
+        });
+      });
+
+    rotator.addEventListener("pointerenter", (event) => {
+      if (event.pointerType !== "mouse") return;
+      hovered = true;
+      sync();
+    });
+    rotator.addEventListener("pointerleave", (event) => {
+      if (event.pointerType !== "mouse") return;
+      hovered = false;
+      sync();
+    });
+
+    new IntersectionObserver(
+      (entries) => {
+        // Batched deliveries are oldest-first; only the newest reflects now
+        onScreen = entries[entries.length - 1].isIntersecting;
+        sync();
+      },
+      { threshold: 0.2 },
+    ).observe(rotator);
+
+    document.addEventListener("visibilitychange", sync);
+  });
+</script>

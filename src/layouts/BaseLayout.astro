@@ -1,0 +1,152 @@
+---
+import "../styles/global.css";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../data/site";
+
+// Agentation: DEV-ONLY visual annotation widget for precise, click-to-point edits.
+// Gated behind import.meta.env.DEV below, so it is stripped from production builds
+// (no React ships to prod). Same pattern as the marksenmedia repos.
+import { Agentation } from "agentation";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Hyper Detailing Umeå – Rekond, polering & keramiskt lackskydd",
+  description = site.description,
+} = Astro.props;
+
+// Absolute URLs for canonical/OG/structured data (Astro.site is set in astro.config.mjs)
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+// Points at the hero photo — the previous /generated-graphics/hyper-3d/og-image.jpg
+// does not exist, so every share rendered without a preview image.
+const ogImageUrl = new URL(
+  "/assets/photos/Car_in_setting_with_logo_202608060903.jpeg",
+  Astro.site,
+).href;
+
+const schema = {
+  "@context": "https://schema.org",
+  // "AutoDetailing" does not exist on schema.org — AutomotiveBusiness is the
+  // closest valid LocalBusiness subtype for a detailing shop.
+  "@type": "AutomotiveBusiness",
+  name: site.fullName,
+  description: site.description,
+  url: canonicalUrl,
+  telephone: site.phone,
+  email: site.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.address,
+    postalCode: site.postalCode,
+    addressLocality: site.city,
+    addressCountry: "SE",
+  },
+  openingHoursSpecification: site.hoursSpec.map((spec) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: spec.dayOfWeek,
+    opens: spec.opens,
+    closes: spec.closes,
+  })),
+  image: ogImageUrl,
+};
+---
+
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#060606" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="sv_SE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <a class="sr-only" href="#main">Hoppa till innehållet</a>
+    <!-- The navbar is a fixed floating pill, so it lives outside the shell.
+         The shell caps the card stack's width and provides the gutter + gaps
+         that let each rounded section read as its own surface. -->
+    <Navbar />
+    <div class="page-shell">
+      <main id="main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+
+    <script
+      is:inline
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
+      integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"></script>
+    <script
+      is:inline
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
+      integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"></script>
+    <script is:inline>
+      (() => {
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduced || typeof gsap === "undefined") return;
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray("[data-animate='fade-up']").forEach((el) => {
+          gsap.from(el, {
+            y: 40,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: { trigger: el, start: "top 85%", once: true },
+          });
+        });
+
+        gsap.utils.toArray("[data-animate='stagger']").forEach((group) => {
+          gsap.from(group.children, {
+            y: 30,
+            opacity: 0,
+            duration: 0.9,
+            ease: "power2.out",
+            stagger: 0.1,
+            scrollTrigger: { trigger: group, start: "top 85%", once: true },
+          });
+        });
+      })();
+    </script>
+
+    {/* Dev-only: Agentation visual annotation widget (stripped from prod builds).
+        `endpoint` connects it to the local Agent Sync server on :4747, so annotations
+        flow through the agentation MCP straight to the AI agent (no copy/paste).
+        Only a serializable string prop is passed — client:only islands can't take
+        function props like onSessionCreated. */}
+    {import.meta.env.DEV && <Agentation client:only="react" endpoint="http://localhost:4747" />}
+  </body>
+</html>

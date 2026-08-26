@@ -1,0 +1,98 @@
+---
+// Full-bleed media card: responsive generated artwork fills the whole rounded
+// section behind accessible live copy.
+---
+
+<section class="cta">
+  <div class="cta-card" data-animate="fade-up">
+    <div class="cta-content">
+      <div class="cta-text">
+        <h2 class="cta-title">
+          Redo att ge din bil <span class="accent">ny lyster?</span>
+        </h2>
+        <p class="cta-sub">
+          Boka din tid idag – vi tar hand om resten. Kostnadsfri offert och personlig
+          rådgivning för just din bil.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Deliberately flush: no root padding and no .container, so the artwork
+     bleeds to the section edge and the global section card clips it to the
+     rounded corners. Copy width is still capped by .cta-content. */
+  .cta-card {
+    position: relative;
+    min-height: 27em; /* 432px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-dark); /* base while the artwork loads */
+    background-image: url("/generated-graphics/hyper-3d/cta-background-desktop.webp");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+    overflow: hidden;
+  }
+
+  /* ---------- Content ---------- */
+  .cta-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 36.75em; /* 588px */
+    max-width: 100%;
+    padding: 4.3125em var(--cell-padding);
+    text-align: center;
+  }
+
+  .cta-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em; /* 16px */
+  }
+
+  .cta-title {
+    font-size: var(--text-4xl); /* 48px */
+    font-weight: 600;
+    line-height: 1.1667; /* 56/48 */
+    color: var(--color-text-white);
+  }
+
+  .cta-title .accent {
+    color: var(--color-accent);
+  }
+
+  .cta-sub {
+    max-width: 27.5625em; /* 441px */
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  @media screen and (max-width: 991px) {
+    .cta-title {
+      font-size: 2.5em;
+    }
+
+    .cta-content {
+      padding-block: 3.5em;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .cta-title {
+      font-size: 2em;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .cta-card {
+      background-image: url("/generated-graphics/hyper-3d/cta-background-mobile.webp");
+    }
+  }
+</style>

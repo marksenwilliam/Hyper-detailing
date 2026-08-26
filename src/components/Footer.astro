@@ -1,0 +1,400 @@
+---
+import { site } from "../data/site";
+
+const serviceLinks = [
+  { label: "Lackkorrigering", href: "#tjanster" },
+  { label: "Keramiskt lackskydd", href: "#tjanster" },
+  { label: "Utvändig rekond", href: "#tjanster" },
+  { label: "Invändig rekond", href: "#tjanster" },
+];
+
+const quickLinks = [
+  { label: "Hem", href: "#" },
+  { label: "Galleri", href: "#galleri" },
+  { label: "Priser", href: "#priser" },
+  { label: "Vanliga frågor", href: "#faq" },
+];
+
+const year = new Date().getFullYear();
+
+// Opens the visitor's mail app with the subject already filled in. A mailto:
+// only does something when the device HAS a mail handler — on a desktop with
+// none registered the click is silently swallowed, which is exactly how it
+// looks when the button "does not work". The script at the bottom of this file
+// catches that case and falls back to `gmailHref`.
+const mailSubject = "Förfrågan via hyperdetailingumea.se";
+const mailtoHref = `mailto:${site.email}?subject=${encodeURIComponent(mailSubject)}`;
+const gmailHref =
+  "https://mail.google.com/mail/?view=cm&fs=1" +
+  `&to=${encodeURIComponent(site.email)}&su=${encodeURIComponent(mailSubject)}`;
+---
+
+<footer class="site-footer" id="kontakt">
+  <div class="container footer-inner">
+    <div class="footer-top">
+      <a class="footer-brand" href="/" aria-label={`${site.fullName} — startsida`}>
+        <img
+          src="/assets/brand/logo-horizontal.svg"
+          alt=""
+          width="659"
+          height="96"
+        />
+      </a>
+
+      <div class="footer-cta">
+        <a class="btn btn-primary" href={site.phoneHref}>Ring {site.phone}</a>
+        <a class="btn btn-ghost" href={mailtoHref} data-mail-fallback={gmailHref}>Mejla oss</a>
+      </div>
+
+      <ul class="socials">
+        {
+          site.socials.map((social) => (
+            <li>
+              <a href={social.href} aria-label={social.label}>
+                <img src={social.icon} alt="" width="16" height="16" loading="lazy" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="footer-grid">
+      <div class="footer-col footer-col-contact">
+        <h2 class="footer-col-title">Kontakt</h2>
+        <ul>
+          <li>
+            <img src="/assets/icons/icon-pin.svg" alt="" width="20" height="20" />
+            <span>{site.address}, {site.postalCode} {site.city}</span>
+          </li>
+          <li>
+            <img src="/assets/icons/icon-phone.svg" alt="" width="20" height="20" />
+            <a href={site.phoneHref}>{site.phone}</a>
+          </li>
+          <li>
+            <img src="/assets/icons/icon-mail.svg" alt="" width="20" height="20" />
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-contact">
+        <h2 class="footer-col-title">Öppettider</h2>
+        <ul>
+          {
+            site.hours.map((row) => (
+              <li>
+                <img src="/assets/icons/icon-clock.svg" alt="" width="20" height="20" />
+                <span>
+                  {row.days}: {row.time}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <nav class="footer-col" aria-label="Tjänster">
+        <h2 class="footer-col-title">Tjänster</h2>
+        <ul>
+          {
+            serviceLinks.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Genvägar">
+        <h2 class="footer-col-title">Genvägar</h2>
+        <ul>
+          {
+            quickLinks.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="copyright">© {year} {site.fullName}. Alla rättigheter förbehållna.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Surface, radius, and border come from the global .site-footer card rule;
+     the root padding insets every row from the card edge. */
+  .site-footer {
+    padding: var(--cell-padding);
+  }
+
+  /* Three stacked rows inside the section card's padding */
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Top row ---------- */
+  /* The root provides the outer padding, so this row keeps only its bottom
+     spacing against the link grid. */
+  /* Three tracks so the buttons sit dead centre of the row rather than centred
+     in the space the brand leaves over. The empty third track is what balances
+     the brand block on the left. */
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2em;
+    padding: 0 0 var(--spacing-2xl);
+  }
+
+  .footer-brand {
+    display: block;
+    width: fit-content;
+  }
+
+  .footer-brand img {
+    display: block;
+    width: auto;
+    height: 2.25em; /* 36px — horizontal lockup */
+  }
+
+  .footer-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75em;
+  }
+
+  /* ---------- Link grid ---------- */
+  /* One subtle card per column, separated by real gaps instead of shared seams */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
+    gap: 1em;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1em; /* 16px */
+    padding: 1.5em; /* lighter than --cell-padding — a card inside a padded section */
+    background-color: var(--color-surface-faint);
+    border-radius: var(--radius-card);
+  }
+
+  .footer-col-title {
+    font-family: var(--font-body);
+    font-size: var(--text-base); /* 16px */
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.42px;
+    color: var(--color-text-white);
+  }
+
+  .footer-col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .footer-col a,
+  .footer-col span {
+    display: block;
+    font-size: var(--text-sm); /* 14px */
+    line-height: 1.4286;
+    letter-spacing: -0.42px;
+    color: var(--color-text-white);
+  }
+
+  .footer-col a {
+    transition: color var(--transition-base);
+  }
+
+  .footer-col a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-col-contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625em;
+  }
+
+  .footer-col-contact img {
+    width: 1.25em;
+    height: 1.25em;
+    flex-shrink: 0;
+    margin-top: 0.05em;
+  }
+
+  /* ---------- Bottom row ---------- */
+  /* Root padding covers the sides and bottom; keep only the spacing against
+     the link grid above. */
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5em;
+    padding: 1.5em 0 0;
+  }
+
+  .copyright {
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-white);
+  }
+
+  /* Right-hand track of the top row */
+  .socials {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1em; /* 16px */
+  }
+
+  .socials a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75em; /* 12px */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .socials a:hover {
+    border-color: var(--color-accent);
+    background-color: rgba(254, 74, 0, 0.1);
+  }
+
+  .socials img {
+    width: 1em; /* 16px */
+    height: 1em;
+  }
+
+  /* ---------- Responsive ---------- */
+  /* The top row (logo | phone buttons | socials) gives up its three-column
+     layout well before the grid below does — a centered vertical stack */
+  @media screen and (max-width: 999px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 1.5em;
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* One card per row once two-up gets cramped */
+  @media screen and (max-width: 799px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .socials {
+      flex-wrap: wrap;
+    }
+
+    /* Match the tighter page rhythm on small screens */
+    .footer-grid {
+      gap: 0.75em;
+    }
+
+    /* Thumb-sized rows. The list gap moves INTO each row, so the column keeps
+       its rhythm while every link grows from a ~19px sliver of text to a full
+       44px target. px on purpose — see the note on .signup in Navbar.astro. */
+    .footer-col ul {
+      gap: 0;
+    }
+
+    .footer-col li {
+      min-height: 44px;
+    }
+
+    .footer-col li > a,
+    .footer-col li > span {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    /* The row is taller than the icon now, so the icon centres on it instead
+       of hanging from the first line's baseline. */
+    .footer-col-contact li {
+      align-items: center;
+    }
+
+    .footer-col-contact img {
+      margin-top: 0;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .footer-cta {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .footer-cta .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  // A mailto: hands the click to the device's mail app, and the page loses
+  // focus almost immediately when it does. With no handler registered nothing
+  // happens at all — the button reads as dead. So: watch for that hand-off,
+  // and if it never comes, open Gmail's compose window instead.
+  //
+  // The wait has to clear a slow-launching mail client without making the
+  // visitor sit and wonder; ~0.9s does both, and stays inside the browser's
+  // transient user activation so window.open is not treated as a popup.
+  const HANDOFF_MS = 900;
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("[data-mail-fallback]")
+    .forEach((link) => {
+      const webmail = link.dataset.mailFallback;
+      if (!webmail) return;
+
+      link.addEventListener("click", () => {
+        let handedOff = false;
+        const markHandedOff = () => {
+          handedOff = true;
+        };
+
+        // Any of the three means something else took the click
+        window.addEventListener("blur", markHandedOff, { once: true });
+        window.addEventListener("pagehide", markHandedOff, { once: true });
+        document.addEventListener("visibilitychange", markHandedOff, { once: true });
+
+        window.setTimeout(() => {
+          window.removeEventListener("blur", markHandedOff);
+          window.removeEventListener("pagehide", markHandedOff);
+          document.removeEventListener("visibilitychange", markHandedOff);
+          if (handedOff || document.hidden) return;
+
+          // Still here, still focused: no mail app took the mailto:
+          const tab = window.open(webmail, "_blank", "noopener");
+          if (!tab) window.location.href = webmail; // popup blocked
+        }, HANDOFF_MS);
+      });
+    });
+</script>

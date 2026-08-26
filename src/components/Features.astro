@@ -1,0 +1,532 @@
+---
+// The three service cards. Copy, bullets and imagery come from
+// ../data/services so the hero strip above renders the same content.
+import ImagePlaceholder from "./ImagePlaceholder.astro";
+import { services } from "../data/services";
+
+const [exterior, coating, interior] = services;
+---
+
+<section class="features" id="tjanster">
+  <div class="container">
+    <!-- Section header -->
+    <header class="features-head" data-animate="fade-up">
+      <span class="section-label">Våra tjänster</span>
+      <div class="features-head-row">
+        <h2 class="section-heading">Bilvård i <span class="accent">toppklass</span></h2>
+        <p class="features-head-sub">
+          Från snabb uppfräschning till komplett transformation – vi har paketet som
+          passar din bil och din budget.
+        </p>
+      </div>
+    </header>
+
+    <div class="features-grid">
+      <!-- Main card: exterior detailing -->
+      <article class="feature-card feature-card-wide" data-animate="fade-up">
+        <div class="feature-copy">
+          <div class="feature-text">
+            <h3 class="feature-title">{exterior.title}</h3>
+            <p class="feature-desc">{exterior.desc}</p>
+            <ul class="feature-points">
+              {
+                exterior.points.map((point) => (
+                  <li>
+                    <img src="/assets/icons/icon-check.svg" alt="" width="16" height="16" />
+                    {point}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+          <a class="btn btn-primary" href="#kontakt">Boka tid</a>
+        </div>
+
+        <span class="dashed-divider dashed-divider--vertical" aria-hidden="true"></span>
+
+        <div class="feature-visual">
+          <span class="feature-glow" aria-hidden="true"></span>
+          <div class="card-slideshow">
+            {
+              exterior.images.map((shot, i) => (
+                <ImagePlaceholder
+                  class={i === 0 ? "slide" : "slide slide-top"}
+                  src={shot.src}
+                  alt={shot.alt}
+                  width={2752}
+                  height={1536}
+                  label={exterior.label}
+                />
+              ))
+            }
+          </div>
+        </div>
+      </article>
+
+      {
+        [coating, interior].map((service) => (
+          <article class="feature-card feature-card-half" data-animate="fade-up">
+            <div class="card-photo">
+              <ImagePlaceholder
+                src={service.images[0].src}
+                alt={service.images[0].alt}
+                width={2752}
+                height={1536}
+                label={service.label}
+              />
+            </div>
+
+            <span class="dashed-divider" aria-hidden="true" />
+
+            <div class="feature-text card-caption">
+              <h3 class="feature-title">{service.title}</h3>
+              <p class="feature-desc">{service.desc}</p>
+              <ul class="feature-points">
+                {service.points.map((point) => (
+                  <li>
+                    <img src="/assets/icons/icon-check.svg" alt="" width="16" height="16" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- Mobile version of this section: static cards, always unfolded — a
+         full-width photo over the dashed divider, then title/description/
+         bullets/CTA (the desktop grid above is hidden <=767px, this is
+         hidden above) -->
+    <ul class="service-cards">
+      {
+        services.map((service) => (
+          <li class="service-card">
+            <div class="service-card-media">
+              {/* Extra shots (utvändig has two) cross-fade over the first, same
+                  rhythm as the desktop card */}
+              {service.images.map((shot, i) => (
+                <ImagePlaceholder
+                  class={i === 0 ? "service-card-photo" : "service-card-photo service-card-photo--top"}
+                  src={shot.src}
+                  alt={shot.alt}
+                  width={2752}
+                  height={1536}
+                  label={service.label}
+                />
+              ))}
+            </div>
+
+            <div class="service-card-panel">
+              <span class="dashed-divider" aria-hidden="true" />
+              <h2 class="service-card-panel-title">{service.title}</h2>
+              <p>{service.desc}</p>
+              <ul class="service-card-points">
+                {service.points.map((point) => (
+                  <li>
+                    <img src="/assets/icons/icon-check.svg" alt="" width="16" height="16" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+
+              <a class="btn btn-primary service-card-cta" href="#kontakt">Boka nu</a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* The global section-card rule supplies the surface; the root only adds the
+     breathing room around its content. */
+  .features {
+    padding: var(--cell-padding);
+  }
+
+  /* ---------- Header ---------- */
+  /* The section root already pads all sides — the head only spaces itself
+     from the grid below. */
+  .features-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    padding: 0 0 var(--spacing-2xl);
+  }
+
+  .features-head .section-label {
+    align-self: flex-start;
+  }
+
+  .features-head-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3em;
+  }
+
+  .section-heading {
+    max-width: 36.75em; /* 588px */
+  }
+
+  .features-head-sub {
+    max-width: 26.1875em; /* 419px */
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  /* ---------- Grid ---------- */
+  /* Real gaps separate the cards — each card carries its own border. */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1em;
+  }
+
+  /* Stroke only on hover — at rest the surface and radius alone define the
+     card (transparent border keeps the box size stable). */
+  .feature-card {
+    position: relative;
+    background-color: var(--color-surface-faint);
+    border: 1px solid transparent;
+    border-radius: var(--radius-card);
+    overflow: hidden; /* clips the glow and the slideshow to the rounded corners */
+    transition: border-color var(--transition-base);
+  }
+
+  .feature-card:hover {
+    border-color: var(--color-border-soft);
+  }
+
+  .feature-card-wide {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: stretch;
+    min-height: 25.875em; /* 414px */
+  }
+
+  /* ---------- Wide card copy ---------- */
+  .feature-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2em;
+    width: 30.5em; /* 488px incl. padding */
+    flex-shrink: 0;
+    padding: var(--cell-padding);
+  }
+
+  .feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+  }
+
+  .feature-title {
+    font-size: 1.5em; /* 24px */
+    font-weight: 600;
+    line-height: 1.333; /* 32/24 */
+    letter-spacing: -0.72px;
+    color: var(--color-text-white);
+  }
+
+  .feature-desc {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .feature-points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625em;
+    margin-top: 0.25em;
+  }
+
+  .feature-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625em;
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-body);
+  }
+
+  .feature-points img {
+    width: 1.143em; /* 16px */
+    height: 1.143em;
+    margin-top: 0.15em;
+    flex-shrink: 0;
+  }
+
+  .feature-copy .btn {
+    margin-top: auto;
+  }
+
+  /* ---------- Wide card visual ---------- */
+  /* The visual fills its cell completely — no inset; the dashed divider
+     element in the markup separates it from the copy cell. */
+  .feature-visual {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .feature-glow {
+    position: absolute;
+    top: -13.25em;
+    right: -4em;
+    width: 22.6875em; /* 363px */
+    height: 22.6875em;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(254, 74, 0, 0.45) 0%,
+      rgba(254, 74, 0, 0.12) 45%,
+      transparent 70%
+    );
+    filter: blur(20px);
+    pointer-events: none;
+  }
+
+  /* ---------- Half cards ---------- */
+  .card-photo :global(.img-slot) {
+    aspect-ratio: 1104 / 620;
+  }
+
+  /* Two-shot cross-fade filling the main card's visual cell. The first slide
+     sits in flow at full height, the second is stacked over it and fades in and
+     out. Base opacity is 0 on purpose: under prefers-reduced-motion the global
+     reset collapses the animation to a single frame, leaving the first shot as
+     a still. */
+  .card-slideshow {
+    position: relative;
+    height: 100%;
+  }
+
+  .card-slideshow :global(.slide) {
+    height: 100%;
+    aspect-ratio: auto !important;
+  }
+
+  .card-slideshow :global(.slide-top) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: card-crossfade 12s ease-in-out infinite;
+  }
+
+  @keyframes card-crossfade {
+    0%,
+    42% {
+      opacity: 0;
+    }
+    50%,
+    92% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .card-photo :global(.img-placeholder) {
+    border: none;
+    border-radius: 0;
+  }
+
+  .card-caption {
+    padding: var(--cell-padding);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media screen and (max-width: 991px) {
+    .features-head-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1em;
+    }
+
+    .section-heading,
+    .features-head-sub {
+      max-width: none;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-card-wide {
+      flex-direction: column;
+    }
+
+    .feature-copy {
+      width: 100%;
+    }
+
+    .feature-visual {
+      min-height: 18em;
+    }
+
+    /* Stacked: the wide card's vertical dashed divider flips to horizontal */
+    .feature-card-wide .dashed-divider--vertical {
+      width: 100%;
+      height: 1px;
+      align-self: auto;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 4px,
+        var(--dash-color) 4px,
+        var(--dash-color) 10px
+      );
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+    }
+
+    /* Stacked, every card reads copy first and shows its photo second. The wide
+       card already does (its copy cell comes first in the source); the halves
+       are reversed, which also keeps the dashed divider between caption and
+       photo. */
+    .feature-card-half {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    /* In the stacked layout the glow's upward offset would paint a blue
+       haze over the copy above — hide it */
+    .feature-glow {
+      display: none;
+    }
+
+  }
+
+
+  /* ==========================================================================
+     Mobile version — interactive cards
+     One card per service: image edge-to-edge with the name overlaid, a
+     full-cell toggle column, and an animated unfold (full-width image, X to
+     close, panel with title/description/bullets/CTA). The desktop grid above
+     and these cards swap at 767px; only one of them ever renders.
+     ========================================================================== */
+
+  .service-cards {
+    display: none;
+  }
+
+  @media screen and (max-width: 767px) {
+    .features-grid {
+      display: none;
+    }
+
+    .service-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75em;
+      width: 100%;
+    }
+  }
+
+  /* Static card, always unfolded: full-width photo on top, then the panel
+     with title/description/bullets/CTA. */
+  .service-card {
+    /* A step above the section surface (#121212) so the card reads as its own
+       panel. */
+    background-color: #1c1c1c;
+    border-radius: var(--radius-card);
+    overflow: hidden; /* clips the media cell to the rounded corners */
+  }
+
+  .service-card-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  /* The image fills the media container completely. It is rendered by
+     ImagePlaceholder — a child component — so scoped selectors cannot reach
+     it; the rule must go through :global(). */
+  .service-card-media :global(.service-card-photo) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  /* Stacked shots cross-fade on the same 12s rhythm as the #tjanster card.
+     Base opacity 0 on purpose: under prefers-reduced-motion the global reset
+     collapses the animation to one frame and the first shot stays as a still. */
+  .service-card-media :global(.service-card-photo--top) {
+    opacity: 0;
+    animation: service-card-crossfade 12s ease-in-out infinite;
+  }
+
+  @keyframes service-card-crossfade {
+    0%,
+    42% {
+      opacity: 0;
+    }
+    50%,
+    92% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .service-card-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    padding: 1em 1.25em 1.25em;
+  }
+
+  .service-card-panel-title {
+    font-size: 1.5em; /* 24px */
+    font-weight: 600;
+    line-height: 1.333;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-white);
+  }
+
+  .service-card-panel p {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .service-card-points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  .service-card-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .service-card-points img {
+    flex-shrink: 0;
+    width: 1.1429em; /* 16px */
+    height: 1.1429em;
+    margin-top: 0.2em;
+  }
+
+  /* CTA under the bullets, centred in the panel */
+  .service-card-cta {
+    align-self: center;
+    margin-top: 0.5em;
+  }
+</style>
+

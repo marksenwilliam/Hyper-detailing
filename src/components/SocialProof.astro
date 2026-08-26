@@ -1,0 +1,120 @@
+---
+// Trust strip — replaces the template's partner-logo row.
+// TODO: Verify every figure with the client before launch.
+const stats = [
+  { value: "500+", label: "Behandlade bilar" },
+  { value: "5,0", label: "Snittbetyg på Google" },
+  { value: "8+", label: "År i branschen" },
+  { value: "100%", label: "Nöjd-kund-garanti" },
+];
+---
+
+<section class="social-proof">
+  <div class="social-proof-inner">
+    <p class="social-proof-title">Bilvård du kan lita på</p>
+
+    <ul class="stats" data-animate="stagger">
+      {
+        stats.map((stat) => (
+          <li class="stat">
+            <span class="stat-value">{stat.value}</span>
+            <span class="stat-label">{stat.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .social-proof {
+    position: relative;
+    padding: 5em var(--container-padding); /* 80px 156px */
+    background-color: var(--color-bg-dark);
+  }
+
+  .social-proof-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5em; /* 40px */
+    padding-inline: 2em;
+  }
+
+  .social-proof-title {
+    font-size: var(--text-lg); /* 20px */
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-text-body);
+    text-align: center;
+  }
+
+  .stats {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 70.5em; /* 1128px */
+  }
+
+  .stat {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em 1.5em;
+    text-align: center;
+  }
+
+  .stat + .stat {
+    border-left: 1px solid var(--color-border);
+  }
+
+  .stat-value {
+    font-size: var(--text-4xl); /* 48px */
+    font-weight: 600;
+    line-height: 1.1667;
+    color: var(--color-text-white);
+  }
+
+  .stat-label {
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-body);
+  }
+
+  @media screen and (max-width: 991px) {
+    .social-proof {
+      padding-block: 3.5em;
+    }
+
+    .stat-value {
+      font-size: 2.25em;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .social-proof-inner {
+      padding-inline: 0;
+    }
+
+    .stats {
+      flex-wrap: wrap;
+      gap: 1.5em 0;
+    }
+
+    .stat {
+      flex: 1 1 40%;
+    }
+
+    /* On the 2×2 layout only the in-row divider stays */
+    .stat + .stat {
+      border-left: none;
+    }
+
+    .stat:nth-child(even) {
+      border-left: 1px solid var(--color-border);
+    }
+  }
+</style>

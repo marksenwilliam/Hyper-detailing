@@ -1,0 +1,242 @@
+---
+// Pricing walkthrough: one card per package with its price and what it
+// includes, closed by a full-width note about how final pricing works.
+//
+// Prices come from ../data/packages — the client's own price list. The three
+// cards under #tjanster describe the service categories and stay in
+// ../data/services; the two files answer different questions and are meant to
+// be separate.
+import { packages } from "../data/packages";
+---
+
+<section class="pricing" id="priser">
+  <div class="container">
+    <!-- Section header sitting above the pricing card grid -->
+    <header class="pricing-head" data-animate="fade-up">
+      <span class="section-label">Priser</span>
+      <div class="pricing-head-row">
+        <h2 class="section-heading">Vad kostar <span class="accent">det?</span></h2>
+        <p class="pricing-head-sub">
+          Tydliga paketpriser utan överraskningar. Exakt pris får du alltid innan vi
+          börjar – större bilar och tuffare skick kan påverka.
+        </p>
+      </div>
+    </header>
+
+    <div class="pricing-grid" data-animate="stagger">
+      {
+        packages.map((pkg) => (
+          <article class="pricing-card">
+            <h3 class="pricing-name">{pkg.name}</h3>
+            <p class="pricing-price">
+              {pkg.from && <span class="pricing-from">från</span>}
+              {pkg.price}
+              {pkg.unit && <span class="pricing-unit">{pkg.unit}</span>}
+            </p>
+            <p class="pricing-desc">{pkg.desc}</p>
+            <ul class="pricing-points">
+              {pkg.points.map((point) => (
+                <li>
+                  <img src="/assets/icons/icon-check.svg" alt="" width="16" height="16" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <a class="btn btn-primary" href="#kontakt">Boka tid</a>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="pricing-note">
+      Priserna gäller normalstor personbil – större bilar och kraftigt nedsmutsade
+      exemplar kan kosta mer. Kontakta oss med bilmodell och önskad behandling så får
+      du en kostnadsfri offert, helt utan förpliktelser.
+    </p>
+  </div>
+</section>
+
+<style>
+  /* The section surface comes from the global card rule; the root only adds
+     the internal padding every content section carries. */
+  .pricing {
+    padding: var(--cell-padding);
+  }
+
+  /* ---------- Header ---------- */
+  /* The section root already pads all sides, so the head only keeps its
+     bottom spacing toward the grid. */
+  .pricing-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    padding: 0 0 var(--spacing-2xl);
+  }
+
+  .pricing-head .section-label {
+    align-self: flex-start;
+  }
+
+  .pricing-head-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3em;
+  }
+
+  .section-heading {
+    max-width: 36.75em; /* 588px */
+  }
+
+  .pricing-head-sub {
+    max-width: 26.1875em; /* 419px */
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  /* ---------- Columns ---------- */
+  /* One card per package, separated by real gaps instead of shared seams.
+     Six columns rather than three: with the current five packages the cards
+     fall as 2+2+2 on the first row and 3+3 on the second, so the last row
+     fills its width instead of leaving a hole. */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1em;
+  }
+
+  .pricing-card {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875em;
+    padding: var(--cell-padding);
+    /* A touch lighter than --color-surface-faint (0.02): the cards sit on the
+       section's own dark surface and needed a little more separation from it.
+       Local on purpose — the token is shared with the spotlight panels. */
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-card);
+  }
+
+  /* The second row splits the full width between its two cards */
+  .pricing-card:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+
+  .pricing-name {
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: 1.4286;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-white);
+  }
+
+  .pricing-price {
+    font-family: var(--font-heading);
+    font-size: 2em; /* 32px */
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text-white);
+  }
+
+  /* Both affixes carry their own spacing — JSX drops the whitespace between
+     the expressions, so it cannot come from the markup. */
+  .pricing-from {
+    margin-right: 0.5em; /* 0.25em against the price */
+    font-size: 0.5em; /* 16px against the price */
+    font-weight: 500;
+    color: var(--color-text-body);
+  }
+
+  .pricing-unit {
+    margin-left: 0.4em; /* 0.25em against the price */
+    font-size: 0.625em; /* 20px against the price */
+    font-weight: 500;
+    color: var(--color-text-body);
+  }
+
+  .pricing-desc {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .pricing-points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625em;
+    margin-top: 0.25em;
+  }
+
+  .pricing-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625em;
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-body);
+  }
+
+  .pricing-points img {
+    width: 1.143em; /* 16px */
+    height: 1.143em;
+    margin-top: 0.15em;
+    flex-shrink: 0;
+  }
+
+  /* Equal button baseline across columns regardless of bullet count */
+  .pricing-card .btn {
+    margin-top: auto;
+  }
+
+  /* ---------- Closing note ---------- */
+  /* A plain footnote below the grid — the section root supplies the side
+     and bottom padding. */
+  .pricing-note {
+    padding: 1.5em 0 0;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media screen and (max-width: 991px) {
+    .pricing-head-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1em;
+    }
+
+    .section-heading,
+    .pricing-head-sub {
+      max-width: none;
+    }
+
+    /* Two even columns; the odd card out takes the last row on its own */
+    .pricing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pricing-card,
+    .pricing-card:nth-child(n + 4) {
+      grid-column: auto;
+    }
+
+    .pricing-card:last-child:nth-child(odd) {
+      grid-column: span 2;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .pricing-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pricing-card:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
+</style>

@@ -1,0 +1,152 @@
+---
+// Image slot with a built-in placeholder.
+//
+// Drop the real file into `public/<src>` (and `public/<mobileSrc>` if given)
+// and this component automatically switches from the dashed placeholder box to
+// the real <picture>/<img> — no code changes needed. Expected files and sizes
+// are listed in IMAGE-PROMPTS.md at the project root.
+import fs from "node:fs";
+import path from "node:path";
+
+interface Props {
+  /** Public path of the desktop/default image, e.g. "/assets/photos/hero-desktop.jpg" */
+  src: string;
+  /** Optional public path of a mobile-specific variant, served ≤767px */
+  mobileSrc?: string;
+  alt: string;
+  /** Intrinsic size of the desktop image (also drives the aspect ratio) */
+  width: number;
+  height: number;
+  /** Short human label shown inside the placeholder box */
+  label: string;
+  loading?: "lazy" | "eager";
+  /** Set "high" on the LCP image only — marking several defeats the purpose */
+  fetchpriority?: "high" | "low" | "auto";
+  class?: string;
+}
+
+const {
+  src,
+  mobileSrc,
+  alt,
+  width,
+  height,
+  label,
+  loading = "lazy",
+  fetchpriority,
+  class: className,
+} = Astro.props;
+
+// Resolve from the project root (cwd), NOT from import.meta.url — during
+// `astro build` this module runs from a bundled chunk under dist/, so a
+// module-relative path would point at a public/ dir that doesn't exist and
+// every image would silently render as a placeholder in production.
+const publicDir = path.resolve(process.cwd(), "public");
+const exists = (p: string) => fs.existsSync(path.join(publicDir, p.replace(/^\//, "")));
+
+const hasImage = exists(src);
+const hasMobile = mobileSrc ? exists(mobileSrc) : false;
+
+const missing = [
+  ...(hasImage ? [] : [src]),
+  ...(mobileSrc && !hasMobile ? [mobileSrc] : []),
+];
+---
+
+{
+  hasImage ? (
+    <picture class:list={["img-slot", className]}>
+      {hasMobile && <source media="(max-width: 767px)" srcset={mobileSrc} />}
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading={loading}
+        fetchpriority={fetchpriority}
+      />
+    </picture>
+  ) : (
+    <div
+      class:list={["img-slot", "img-placeholder", className]}
+      style={`aspect-ratio: ${width} / ${height};`}
+      role="img"
+      aria-label={alt}
+    >
+      <svg
+        class="ph-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <rect x="2.5" y="4.5" width="19" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
+        <circle cx="8.5" cy="10" r="1.8" stroke="currentColor" stroke-width="1.5" />
+        <path d="M4 17.5L9.5 12.5L13 15.5L16.5 12L21 16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <p class="ph-label">{label}</p>
+      {missing.map((file) => (
+        <p class="ph-file">{file}</p>
+      ))}
+      <p class="ph-dims">{width} × {height}px</p>
+    </div>
+  )
+}
+
+<style>
+  .img-slot {
+    display: block;
+    width: 100%;
+  }
+
+  .img-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375em;
+    padding: 1em;
+    background-color: rgba(255, 255, 255, 0.02);
+    background-image: radial-gradient(
+      circle at 50% 40%,
+      rgba(254, 74, 0, 0.06) 0%,
+      transparent 65%
+    );
+    border: 1.5px dashed rgba(255, 255, 255, 0.18);
+    border-radius: inherit;
+    color: var(--color-text-body);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .ph-icon {
+    width: 2.25em;
+    height: 2.25em;
+    margin-bottom: 0.375em;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .ph-label {
+    font-size: 0.875em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .ph-file {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.6875em;
+    color: var(--color-accent);
+    word-break: break-all;
+  }
+
+  .ph-dims {
+    font-size: 0.6875em;
+    color: var(--color-text-body);
+  }
+</style>

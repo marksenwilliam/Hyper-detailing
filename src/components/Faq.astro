@@ -1,0 +1,242 @@
+---
+const faqs = [
+  {
+    question: "Hur lång tid tar en helrekond?",
+    answer:
+      "En helrekond tar normalt 6–10 timmar beroende på bilens storlek och skick. Lämna bilen på morgonen så är den oftast klar samma dag. Vid keramiskt lackskydd behöver vi bilen till dagen efter, eftersom skyddet ska härda i lugn och ro.",
+    open: false,
+  },
+  {
+    question: "Hur länge håller ett keramiskt lackskydd?",
+    answer:
+      "Med rätt skötsel håller vårt keramiska lackskydd i 8 år. Det keramiska spraylackskyddet som ingår i Ultra rekond är ett tunnare skydd och håller kortare tid. Efter behandlingen får du alltid tydliga skötselråd av oss, så att skyddet håller så länge som möjligt.",
+    open: true,
+  },
+  {
+    question: "Vad kostar era tjänster?",
+    answer:
+      "Priset beror på bilens storlek och skick samt vilket paket du väljer. Kontakta oss med bilmodell och önskad behandling så återkommer vi snabbt med en kostnadsfri offert – helt utan förpliktelser.",
+    open: false,
+  },
+  {
+    question: "Behöver jag boka tid i förväg?",
+    answer:
+      "Ja, vi arbetar enbart med bokade tider för att kunna ge varje bil full uppmärksamhet. Ring eller mejla oss så hittar vi en tid som passar – oftast har vi lediga tider inom en vecka.",
+    open: false,
+  },
+];
+---
+
+<section class="faq" id="faq">
+  <div class="container faq-inner">
+    <header class="faq-head" data-animate="fade-up">
+      <div class="faq-head-text">
+        <h2 class="section-heading">
+          Vanliga <span class="accent">frågor</span>
+        </h2>
+        <p class="faq-sub">
+          Här hittar du svar på det våra kunder oftast undrar. Hittar du inte svaret du
+          söker? Hör av dig så hjälper vi dig direkt.
+        </p>
+      </div>
+    </header>
+
+    <div class="faq-list" data-animate="stagger">
+      {
+        faqs.map((faq, i) => (
+          <div class="faq-item">
+            <h3>
+              <button
+                type="button"
+                class="faq-question"
+                aria-expanded={faq.open ? "true" : "false"}
+                aria-controls={`faq-panel-${i}`}
+                id={`faq-trigger-${i}`}
+              >
+                <span>{faq.question}</span>
+                <img
+                  class="faq-icon-plus"
+                  src="/assets/icons/icon-plus.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+                <img
+                  class="faq-icon-minus"
+                  src="/assets/icons/icon-minus.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+              </button>
+            </h3>
+            <div
+              class="faq-panel"
+              id={`faq-panel-${i}`}
+              role="region"
+              aria-labelledby={`faq-trigger-${i}`}
+              hidden={!faq.open}
+            >
+              <p>{faq.answer}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The section surface comes from the global card rule; the root only adds
+     the internal padding every content section carries. */
+  .faq {
+    padding: var(--cell-padding);
+  }
+
+  /* Two columns separated by a real gap — it also provides the vertical
+     separation when the grid collapses to one column. */
+  .faq-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: var(--cell-padding);
+  }
+
+  /* The section root already pads all sides and the grid gap separates the
+     columns, so the head carries no padding of its own. */
+  .faq-head {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5em; /* 24px */
+  }
+
+  .faq-head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125em; /* 18px */
+  }
+
+  .faq-sub {
+    max-width: 26.1875em; /* 419px */
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .faq-list {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.75em;
+  }
+
+  /* Stacked cards separated by real gaps instead of shared seams */
+  .faq-item {
+    background-color: var(--color-surface-faint);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: background-color var(--transition-base);
+  }
+
+  .faq-item:hover {
+    background-color: rgba(255, 255, 255, 0.045);
+  }
+
+  /* The heading only carries semantics — it must not scale the button's em sizing */
+  .faq-item h3 {
+    font: inherit;
+    color: inherit;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    gap: 0.4em; /* 8px @ 20px */
+    width: 100%;
+    /* The 0.8 factor converts --cell-padding (an em value, so relative to this
+       button's own 20px type) back to the same 48px every other cell uses. */
+    padding: 1.2em calc(var(--cell-padding) * 0.8);
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: var(--text-lg); /* 20px */
+    font-weight: 500;
+    line-height: 1.4; /* 28/20 */
+    color: var(--color-text-white);
+  }
+
+  /* The button fills the rounded, overflow-hidden item — the default outside
+     outline would be clipped, so draw the focus ring inside. */
+  .faq-question:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .faq-question span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .faq-question img {
+    flex-shrink: 0;
+    width: 1.2em; /* 24px @ 20px font */
+    height: 1.2em;
+  }
+
+  .faq-question[aria-expanded="false"] .faq-icon-minus,
+  .faq-question[aria-expanded="true"] .faq-icon-plus {
+    display: none;
+  }
+
+  /* Open state: 8px between the question and its answer */
+  .faq-question[aria-expanded="true"] {
+    padding-bottom: 0.4em;
+  }
+
+  .faq-panel {
+    padding: 0 var(--cell-padding) 1.5em;
+  }
+
+  .faq-panel[hidden] {
+    display: none;
+  }
+
+  .faq-panel p {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  @media screen and (max-width: 991px) {
+    .faq-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .faq-sub {
+      max-width: none;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .faq-question {
+      font-size: var(--text-base);
+    }
+
+    .faq-panel {
+      padding-bottom: 1.25em;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".faq-question").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const expanded = trigger.getAttribute("aria-expanded") === "true";
+      const panelId = trigger.getAttribute("aria-controls");
+      const panel = panelId ? document.getElementById(panelId) : null;
+
+      trigger.setAttribute("aria-expanded", String(!expanded));
+      if (panel) panel.hidden = expanded;
+    });
+  });
+</script>
