@@ -29,7 +29,11 @@ at the project root, all generated from `logo-tile.svg`.
 | `icon-clock.svg` | Orange clock — footer opening hours | New |
 | `icon-thunder.svg` | Orange bolt — hero eyebrow pill | Template |
 | `icon-plus.svg` / `icon-minus.svg` | FAQ accordion toggle | Template |
-| `icon-social-1..4.svg` | Footer social links (Facebook, Instagram, LinkedIn, YouTube) | Template |
+| `icon-social-1.svg` | Facebook glyph — footer social link | Template |
+| `icon-social-2.svg` | LinkedIn glyph (unused) | Template |
+| `icon-social-3.svg` | Twitter/X glyph (unused) | Template |
+| `icon-social-4.svg` | Instagram glyph — footer social link | Template |
+| `icon-google.svg` / `icon-facebook.svg` | Review source marks — hero badge, review cards | New |
 
 ## Images — `public/assets/images/`
 

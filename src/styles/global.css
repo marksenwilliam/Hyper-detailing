@@ -33,7 +33,10 @@
   --color-bg-dark: #121212;
   --color-accent: #fe4a00;
   --color-text-white: #ffffff;
-  --color-text-body: #828282; /* ≥4.5:1 (WCAG AA) on all card surfaces used in the design */
+  /* Body grey. #8a8a8a clears WCAG AA (4.5:1) on every surface in use,
+     including the lightest card fill (rgba(255,255,255,0.04) over #121212
+     ≈ #1c1c1c → 4.9:1). The previous #828282 was 4.4:1 there. */
+  --color-text-body: #8a8a8a;
   --color-text-muted: #8c8c9a;
 
   /* Surfaces & outlines (translucent white over the dark base) */
@@ -51,10 +54,11 @@
     rgba(234, 234, 251, 0.1) 100%
   );
 
-  /* Typography */
+  /* Typography — Plus Jakarta Sans is self-hosted via @fontsource (imported in
+     BaseLayout). The template's Roboto wordmark font is gone: the logo is an
+     SVG now, so nothing needs it. */
   --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-wordmark: "Roboto", "Plus Jakarta Sans", system-ui, sans-serif;
 
   /* Type scale (Figma px → em @ 16px base) */
   --text-6xl: 3.75em;   /* 60px */
@@ -425,6 +429,43 @@ p {
 
 .section-heading .accent {
   color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Toast — feedback for tel:/sms: links on devices without a dialer
+   (see the contact-link script in BaseLayout)
+   ========================================================================== */
+
+.site-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5em;
+  z-index: 200;
+  max-width: min(92vw, 28em);
+  padding: 0.875em 1.25em;
+  background-color: color-mix(in srgb, var(--color-bg-dark) 88%, transparent);
+  border: 1px solid rgba(254, 74, 0, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: var(--text-sm);
+  line-height: 1.4286;
+  color: var(--color-text-white);
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 0.5em);
+  transition: opacity var(--transition-base), transform var(--transition-base);
+  pointer-events: none;
+}
+
+.site-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.site-toast[hidden] {
+  display: none;
 }
 
 /* ==========================================================================

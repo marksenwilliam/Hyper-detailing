@@ -1,48 +1,128 @@
 # Hyper Detailing Umeå — Landing Page
 
-Single-page marketing site for Hyper Detailing, a car detailing company in Umeå.
-Built with Astro (static output), converted from the "Darken" Figma template and
-fully customized for the client. All copy is in Swedish.
+Marketing site for Hyper Detailing, a car detailing shop in Umeå. Built with
+Astro (static output), converted from the "Darken" Figma template and fully
+customized for the client. All copy is in Swedish.
 
 ## Commands
 
 | Command           | Action                                      |
 | :---------------- | :------------------------------------------ |
 | `npm install`     | Install dependencies                        |
-| `npm run dev`     | Start local dev server at `localhost:4321`  |
+| `npm run dev`     | Start local dev server at `localhost:4322`  |
 | `npm run build`   | Build the production site to `./dist/`      |
 | `npm run preview` | Preview the production build locally        |
 
-## Before launch — replace placeholders
+## Launch status (2026-09-09)
 
-1. **Images** — every photo slot renders a dashed placeholder box until the real
-   file exists. Drop the finished images into `public/assets/photos/` using the
-   exact filenames and sizes listed in [`IMAGE-PROMPTS.md`](IMAGE-PROMPTS.md)
-   (which also contains ready-to-use AI image generation prompts). The site
-   switches to the real images automatically.
-2. **Client details** — phone, email, address, opening hours and social links
-   are placeholders, centralized in [`src/data/site.ts`](src/data/site.ts).
-3. **Off-page content** — `SocialProof.astro` (stats strip) and
-   `Testimonials.astro` (reviews) are currently not rendered on the page but
-   remain in `src/components/` with invented placeholder content; verify with
-   the client before re-adding them.
+Verified on the production build (`npm run build` + `astro preview`):
+
+- **No cookies, no local/session storage, no third-party requests.** Every
+  resource (fonts, GSAP, images, video) is served from the site's own origin.
+  A cookie banner is therefore not required (LEK 9 kap. 28 § only demands
+  consent for non-essential storage) and must not be added without reason.
+- **No dev tooling in the build** — the Agentation widget, React and the
+  `localhost:4747` probe exist in `npm run dev` only.
+- **axe-core** (WCAG 2.x A/AA + best-practice): zero violations on `/`,
+  `/villkor`, `/integritetspolicy` once the dev widget is excluded. To re-run:
+  copy `node_modules/axe-core/axe.min.js` into `public/`, load it in the page
+  and call `axe.run()`; delete the copy afterwards.
+- **Contrast**: body grey `#8a8a8a` is ≥4.9:1 on every surface; buttons
+  ≥4.7:1.
+- **Unused media** (61 MB of raw Instagram downloads with unblurred plates,
+  AI renders, generation sources) moved from `public/` to
+  `source-material/public-unused/` so it is not published. `public/` is 19 MB.
+- Custom `404.astro`; sitemap excludes it.
+
+## Before launch — what the client must supply
+
+Everything else on the site is verified and final. These values live in
+[`src/data/site.ts`](src/data/site.ts) and cannot be looked up from outside:
+
+1. **`orgNumber`** — organisationsnummer. E-handelslagen (2002:562) 8 § requires
+   it on the site. Rendered in the footer and on both legal pages once set.
+2. **`vatNumber`** — momsregistreringsnummer (if momsregistrerad). Same statute.
+3. **`legalName`** — the registered company name, if it differs from
+   "Hyper Detailing Umeå".
+4. **`socials`** — Facebook and Instagram page URLs. Rows without a URL are not
+   rendered, so no dead links ship; once filled in they appear in the footer
+   and in the structured data (`sameAs`).
+5. **Domain** — `site` in `astro.config.mjs` is `https://hyperdetailingumea.se`.
+   Change it if the real domain differs; canonical URLs, Open Graph, the sitemap
+   and `public/robots.txt` all derive from it (update `robots.txt` by hand).
+
+Verified against the Google Business profile on 2026-09-09: phone
+`076-843 63 93`, address `Industrivägen 22, 901 30 Umeå`, hours every day
+09–19, rating 5,0 from 15 reviews. Email from the client (August 2026).
+
+Also confirm with the client before launch:
+
+- The **service and package descriptions** (`src/data/services.ts`,
+  `src/data/packages.ts`) — the bullets describe what each package includes and
+  are marketing claims. The "8 års hållbarhet" claim on the ceramic coating
+  must be backed by the product's own warranty.
+- The **24-hour cancellation rule** and the wording on **avbokningsavgift** in
+  `/villkor` — the page says the fee is stated in the booking confirmation, so
+  the client must actually do that.
+- The **photo consent** promise in `/integritetspolicy` ("vi publicerar bara
+  bilder på din bil om du har godkänt det").
+- **Payment methods** — `/villkor` currently says they are announced at booking.
+- The **person visible in the first second of the desktop hero video** — fine
+  if it is the owner or an employee who agreed to appear; otherwise re-cut.
+- **Hosting**: serve over HTTPS with a redirect from http. If the host adds its
+  own cookies (e.g. Cloudflare bot management), they count as strictly
+  necessary, but check and, if so, mention them in `/integritetspolicy`.
+
+## Legal compliance (Sweden)
+
+| Requirement | Statute | Where |
+|---|---|---|
+| Company name, address, e-mail, org.nr, VAT no. easy to find | E-handelslagen 8 § | Footer, `/villkor`, `/integritetspolicy` |
+| Consumer prices incl. VAT; "från"-prices explained | Prisinformationslagen | `#priser` note |
+| No misleading claims; reviews verbatim; only real photos labelled as real | Marknadsföringslagen 10 § | `src/data/reviews.ts`, `src/data/gallery.ts` |
+| Information before a distance contract; 14-day ångerrätt | Distansavtalslagen 2 kap. | `/villkor` §5 |
+| Reklamation, tilläggsarbete, skadestånd | Konsumenttjänstlagen | `/villkor` §3, §8, §9 |
+| ARN information | Lag (2015:671) om alternativ tvistlösning | `/villkor` §10 |
+| Privacy notice (art. 13) | GDPR | `/integritetspolicy`, linked from the form |
+| No cookies / no third-party requests | LEK 9 kap. 28 §, GDPR | No analytics; fonts and GSAP self-hosted |
+| Pause control for auto-playing video and carousels | WCAG 2.2.2 (best practice; EN 301 549) | Hero, `#galleri` |
+
+Registration plates in customer photos are blurred (a readable plate is
+personal data). Blur before adding new photos.
+
+## Bokningsformulär
+
+The site is static with no backend. The form in `Contact.astro` composes an
+e-mail in the visitor's own mail app with every field filled in, and falls back
+to Gmail's compose window if no mail app answers the `mailto:`. Nothing is
+stored on the site.
+
+To send through a form service instead, add `data-endpoint="https://…"` to the
+`<form>` (Web3Forms, Formspree, a Netlify/Vercel function). The script then
+POSTs the fields as JSON and shows an inline confirmation. Update the privacy
+policy's "Bokningsformuläret … lagrar ingenting hos oss" paragraph and the
+recipients list if you do.
 
 ## Page structure
 
 | Section | Component | Anchor |
 |---|---|---|
 | Navbar | `Navbar.astro` | — |
-| Hero (full-viewport image) | `Hero.astro` | — |
-| Showcase (split image/copy card) | `Showcase.astro` | — |
-| Ticker (draggable photo marquee) | `Marquee.astro` | `#galleri` |
+| Hero (video + rating badge + map card) | `Hero.astro` | `#top` |
+| Reviews + customer cars | `Spotlight.astro` | `#galleri` |
 | Services | `Features.astro` | `#tjanster` |
+| Prices | `Pricing.astro` | `#priser` |
 | FAQ | `Faq.astro` | `#faq` |
 | CTA | `Cta.astro` | — |
-| Footer / contact | `Footer.astro` | `#kontakt` |
+| Contact & booking form | `Contact.astro` | `#kontakt` |
+| Footer (legal info, links) | `Footer.astro` | — |
 
-Built but not currently rendered: `Gallery.astro`, `Testimonials.astro`,
-`SocialProof.astro` — drop them back into `src/pages/index.astro` to re-enable.
+Legal pages: `/integritetspolicy`, `/villkor` (shared shell `LegalPage.astro`).
+
+Built but not rendered: `Gallery.astro`, `Showcase.astro`, `Testimonials.astro`
+and `SocialProof.astro`. The last two contain **invented** placeholder content
+and must not be re-added without real data.
 
 Design tokens (colors, type scale, fluid scaling) live in
 `src/styles/global.css`. The brand look is a dark theme with an orange accent
-(`#fe4a00`), matching the original template palette.
+(`#fe4a00`).

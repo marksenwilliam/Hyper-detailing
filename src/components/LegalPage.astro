@@ -1,0 +1,177 @@
+---
+// Shell for the legal pages (/integritetspolicy, /villkor): a single section
+// card with a readable prose column. Content comes through the slot as plain
+// HTML — headings, paragraphs, lists — styled below via :global().
+import { site } from "../data/site";
+
+interface Props {
+  title: string;
+  lead: string;
+}
+
+const { title, lead } = Astro.props;
+---
+
+<section class="legal">
+  <div class="container legal-inner">
+    <header class="legal-head">
+      <a class="legal-back" href="/#top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H6m6-6-6 6 6 6"></path>
+        </svg>
+        Till startsidan
+      </a>
+      <h1 class="legal-title">{title}</h1>
+      <p class="legal-lead">{lead}</p>
+      <p class="legal-updated">Senast uppdaterad: {site.legalUpdated}</p>
+    </header>
+
+    <div class="legal-body">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .legal {
+    padding: calc(var(--header-offset) + var(--header-height) + 2em) var(--cell-padding)
+      var(--cell-padding);
+  }
+
+  .legal-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5em;
+    max-width: 46em; /* ~736px reading column */
+  }
+
+  .legal-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .legal-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    width: fit-content;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-white);
+    transition: color var(--transition-base);
+  }
+
+  .legal-back:hover {
+    color: var(--color-accent);
+  }
+
+  .legal-back svg {
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  .legal-title {
+    font-size: var(--text-4xl);
+    font-weight: 600;
+    line-height: 1.1667;
+    color: var(--color-text-white);
+  }
+
+  .legal-lead {
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .legal-updated {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- Prose ---------- */
+  .legal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--color-text-body);
+  }
+
+  .legal-body :global(h2) {
+    margin-top: 1.5em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--color-border-soft);
+    font-size: 1.5em;
+    line-height: 1.333;
+    letter-spacing: -0.5px;
+  }
+
+  .legal-body :global(h2:first-child) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .legal-body :global(h3) {
+    margin-top: 0.75em;
+    font-size: var(--text-lg);
+    line-height: 1.4;
+  }
+
+  .legal-body :global(p strong),
+  .legal-body :global(li strong) {
+    font-weight: 600;
+    color: var(--color-text-white);
+  }
+
+  .legal-body :global(ul) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding-left: 1.25em;
+    list-style: disc;
+  }
+
+  .legal-body :global(li::marker) {
+    color: var(--color-accent);
+  }
+
+  .legal-body :global(a) {
+    color: var(--color-text-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--color-border-strong);
+    transition: color var(--transition-base), text-decoration-color var(--transition-base);
+  }
+
+  .legal-body :global(a:hover) {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
+  }
+
+  /* Key/value blocks (personuppgiftsansvarig, ARN address …) */
+  .legal-body :global(.legal-card) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    padding: 1.25em 1.5em;
+    background-color: var(--color-surface-faint);
+    border-radius: var(--radius-card);
+  }
+
+  .legal-body :global(.legal-card p) {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 767px) {
+    .legal-title {
+      font-size: 2em;
+    }
+
+    .legal-lead {
+      font-size: var(--text-base);
+    }
+  }
+</style>

@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # scratch image-generation artifacts
 tmp/
+
+# raw/unused media moved out of public/ before launch (unblurred plates, AI renders) — keep local only
+source-material/

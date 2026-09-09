@@ -1,0 +1,181 @@
+---
+// General terms for consumers. Written against:
+//   - konsumenttjänstlagen (1985:716)       — fackmässighet, tilläggsarbete,
+//                                             reklamation, skadestånd
+//   - distansavtalslagen (2005:59)          — ångerrätt when booked by
+//                                             phone/e-mail/web (14 days) and the
+//                                             information duty that comes with it
+//   - prisinformationslagen (2004:347)      — total price incl. VAT
+//   - lag (2015:671) om alternativ tvistlösning — ARN information
+// The terms never limit rights the consumer has by law; the "Reklamation" and
+// "Ångerrätt" sections restate the statutory positions.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LegalPage from "../components/LegalPage.astro";
+import { site, fullAddress } from "../data/site";
+
+const title = "Allmänna villkor";
+const description =
+  "Bokningsvillkor för Hyper Detailing Umeå: bokning, priser, avbokning, ångerrätt, reklamation och hur vi hanterar tvister.";
+---
+
+<BaseLayout title={`${title} – ${site.fullName}`} description={description}>
+  <LegalPage
+    title={title}
+    lead="Det här är villkoren som gäller när du som privatperson bokar bilvård hos oss. Vi har skrivit dem så enkelt vi kan – och ingenting här inskränker de rättigheter du har enligt lag."
+  >
+    <h2>1. Om villkoren</h2>
+    <p>
+      Villkoren gäller mellan <strong>{site.legalName}</strong>
+      {site.orgNumber && <>(org.nr {site.orgNumber})</>}, {fullAddress}, nedan
+      ”vi”, och dig som konsument när du köper bilvårdstjänster av oss. För tjänsterna
+      gäller konsumenttjänstlagen (1985:716). När du bokar på distans – via telefon,
+      sms, e-post eller webbplatsen – gäller dessutom lagen om distansavtal och avtal
+      utanför affärslokaler (2005:59).
+    </p>
+
+    <h2>2. Bokning</h2>
+    <p>
+      Du bokar tid via telefon, sms, e-post eller bokningsformuläret på webbplatsen. Ange
+      bilmodell, vilken tjänst du önskar och när du vill lämna bilen. Bokningen är
+      bindande först när vi har bekräftat tiden med dig – normalt via sms eller e-post.
+      Vi arbetar enbart med bokade tider.
+    </p>
+
+    <h2>3. Priser och betalning</h2>
+    <ul>
+      <li>
+        Alla priser på webbplatsen anges i svenska kronor och <strong>inklusive
+        moms</strong>.
+      </li>
+      <li>
+        Paketpriserna gäller en normalstor personbil i normalt skick. Större bilar och
+        kraftigt nedsmutsade eller skadade bilar kan kosta mer. Priser som anges med
+        ”från” är lägsta pris för paketet; det slutliga priset beror på bilens storlek
+        och skick.
+      </li>
+      <li>
+        Du får alltid det exakta priset bekräftat <strong>innan vi börjar</strong>.
+        Upptäcker vi under arbetet att något mer behöver göras, kontaktar vi dig och
+        utför tilläggsarbetet bara om du godkänner det.
+      </li>
+      <li>
+        Betalning sker när du hämtar bilen. Vilka betalsätt vi tar emot får du besked om
+        vid bokningen.
+      </li>
+    </ul>
+
+    <h2>4. Avbokning och ombokning</h2>
+    <p>
+      Du kan avboka eller omboka kostnadsfritt fram till <strong>24 timmar</strong>
+      före bokad tid – ring, sms:a eller mejla oss. Vid senare avbokning, eller om bilen
+      inte lämnas in på bokad tid, förbehåller vi oss rätten att ta ut en skälig
+      avbokningsavgift. Avgiften och villkoren för den framgår alltid av din
+      bokningsbekräftelse.
+    </p>
+    <p>
+      Skulle vi behöva flytta din tid, till exempel vid sjukdom eller maskinfel, hör vi
+      av oss så snart vi kan och erbjuder en ny tid. Du har då alltid rätt att i stället
+      avboka utan kostnad.
+    </p>
+
+    <h2>5. Ångerrätt vid distansbokning</h2>
+    <p>
+      När du bokar på distans (telefon, sms, e-post eller webbplatsen) har du enligt
+      distansavtalslagen rätt att ångra bokningen inom <strong>14 dagar</strong> från den
+      dag bokningen bekräftades, utan att ange något skäl. För att ångra dig kontaktar du
+      oss på <a href={`mailto:${site.email}`}>{site.email}</a> eller
+      <a href={site.phoneHref}>{site.phone}</a>. Du kan använda Konsumentverkets
+      standardformulär för ångerrätt, men det är inget krav.
+    </p>
+    <p>
+      Vill du att vi utför tjänsten innan ångerfristen har gått ut ber du om det när du
+      bokar, och vi noterar det i bokningsbekräftelsen. Då gäller följande:
+    </p>
+    <ul>
+      <li>
+        Ångrar du dig efter att arbetet har påbörjats men innan det är klart, betalar du
+        för den del av tjänsten som redan har utförts.
+      </li>
+      <li>
+        När tjänsten är helt utförd finns ingen ångerrätt kvar.
+      </li>
+    </ul>
+
+    <h2>6. Inlämning och hämtning</h2>
+    <ul>
+      <li>
+        Lämna bilen på avtalad tid på {fullAddress}. Hör av dig om du blir sen.
+      </li>
+      <li>
+        Ta med dig värdesaker och personliga tillhörigheter. Vi ansvarar inte för lösa
+        föremål som lämnats kvar i bilen.
+      </li>
+      <li>
+        Vid inlämningen går vi igenom bilen tillsammans med dig och noterar befintliga
+        skador, till exempel repor, stenskott eller lackskador, så att vi båda vet hur
+        bilen såg ut från början.
+      </li>
+      <li>
+        Hämta bilen på avtalad tid. Behöver bilen stå kvar hos oss längre kommer vi
+        överens om det.
+      </li>
+    </ul>
+
+    <h2>7. Utförande och resultat</h2>
+    <p>
+      Vi utför tjänsten fackmässigt och med den omsorg som konsumenttjänstlagen kräver.
+      Vad som kan uppnås beror på bilens skick: djupa repor, lackskador, färgade fläckar
+      och slitage kan inte alltid avhjälpas helt. Om vi bedömer att en tjänst inte ger
+      det resultat du förväntar dig berättar vi det innan vi börjar. Hållbarheten hos
+      ett keramiskt lackskydd förutsätter att bilen sköts enligt de skötselråd du får av
+      oss.
+    </p>
+
+    <h2>8. Om något går fel</h2>
+    <p>
+      Skulle bilen skadas medan den är hos oss och skadan har orsakats av oss, ersätter
+      vi den enligt konsumenttjänstlagens regler. Anmäl skadan till oss så snart som
+      möjligt – helst redan när du hämtar bilen.
+    </p>
+
+    <h2>9. Reklamation</h2>
+    <p>
+      Är du inte nöjd med resultatet vill vi veta det. Kontakta oss inom skälig tid från
+      det att du upptäckte felet – en reklamation inom två månader räknas alltid som i
+      tid. Du kan reklamera en tjänst i upp till tre år efter att den utfördes. I första
+      hand rättar vi till felet utan kostnad för dig; går det inte har du rätt till
+      prisavdrag eller, vid väsentliga fel, hävning enligt konsumenttjänstlagen.
+    </p>
+
+    <h2>10. Tvist</h2>
+    <p>
+      Kontakta alltid oss först – de flesta problem löser vi tillsammans. Kommer vi ändå
+      inte överens kan du vända dig till Allmänna reklamationsnämnden (ARN). Vi medverkar
+      i ARN:s prövning och följer nämndens rekommendationer.
+    </p>
+    <div class="legal-card">
+      <p><strong>Allmänna reklamationsnämnden (ARN)</strong></p>
+      <p>Box 174, 101 23 Stockholm</p>
+      <p>
+        <a href="https://www.arn.se" target="_blank" rel="noopener noreferrer">www.arn.se</a>
+      </p>
+    </div>
+    <p>
+      Oberoende vägledning får du kostnadsfritt hos Konsumentverkets tjänst
+      <a href="https://www.hallakonsument.se" target="_blank" rel="noopener noreferrer">Hallå konsument</a>
+      eller hos konsumentvägledningen i din kommun. Svensk lag gäller för avtalet.
+    </p>
+
+    <h2>11. Personuppgifter</h2>
+    <p>
+      Hur vi behandlar dina personuppgifter när du bokar beskriver vi i vår
+      <a href="/integritetspolicy">integritetspolicy</a>.
+    </p>
+
+    <h2>12. Ändringar av villkoren</h2>
+    <p>
+      Vi kan uppdatera villkoren. För din bokning gäller alltid den version som fanns
+      på webbplatsen när du bokade. Datum för senaste uppdatering står överst på sidan.
+    </p>
+  </LegalPage>
+</BaseLayout>

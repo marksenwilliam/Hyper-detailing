@@ -1,6 +1,17 @@
 // Real customer cars, shown one at a time by the Spotlight rotator
-// (Spotlight.astro). Sources should be wide (≈16:9) — the window crops with
-// object-fit: cover on a wide frame at every breakpoint.
+// (Spotlight.astro).
+//
+// ONLY genuine photos from the shop belong here. The section copy promises
+// "varje bild är en riktig kundbil", and marknadsföringslagen (2008:486) treats
+// AI-generated or retouched "results" presented as real ones as misleading
+// marketing. The rendered cars under public/generated-cars/ are illustration
+// material and must not be listed here.
+//
+// Every photo below has its registration plate blurred — a readable plate is
+// personal data under GDPR, so blur it before adding a new shot.
+//
+// Sources are 4:3; the window crops with object-fit: cover, and the cars sit
+// centred so only floor and ceiling are trimmed.
 export interface GalleryShot {
   src: string;
   alt: string;
@@ -10,41 +21,39 @@ export interface GalleryShot {
 
 export const galleryShots: GalleryShot[] = [
   {
-    // Square source in a wide window: the car sits centred with headroom top
-    // and bottom, so object-fit: cover trims only ceiling and floor.
-    src: "/generated-cars/bil-a-kia-ceed-sw/site/gallery-rear-square.webp",
-    alt: "Kia Ceed SW efter rekond, fotograferad bakifrån",
-    width: 800,
-    height: 800,
+    src: "/assets/photos/real-results/gallery-real-bmw-after.webp",
+    alt: "Svart BMW 5-serie Touring efter rekond, fotograferad bakifrån i tvätthallen",
+    width: 1200,
+    height: 900,
   },
   {
-    src: "/generated-cars/golf-alltrack/4k/high-overhead-three-quarter.jpg",
-    alt: "Volkswagen Golf Alltrack efter rekond, fotograferad snett ovanifrån",
-    width: 3840,
-    height: 2160,
+    src: "/assets/photos/real-results/gallery-real-tesla.webp",
+    alt: "Vit Tesla Model Y efter rekond, fotograferad snett framifrån",
+    width: 1200,
+    height: 900,
   },
   {
-    src: "/generated-cars/bil-c-volvo-xc60/2k/low-rear-three-quarter.webp",
-    alt: "Volvo XC60 efter rekond, fotograferad bakifrån i låg vinkel",
-    width: 2048,
-    height: 1152,
+    src: "/assets/photos/real-results/gallery-real-mercedes.webp",
+    alt: "Svart Mercedes S-klass efter rekond, fotograferad snett framifrån",
+    width: 1200,
+    height: 900,
   },
   {
-    src: "/generated-cars/bil-d-mercedes-s-class/high-quality/front-three-quarter.webp",
-    alt: "Mercedes S-klass efter rekond, fotograferad snett framifrån",
-    width: 2560,
-    height: 1920,
+    src: "/assets/photos/real-results/gallery-real-golf.webp",
+    alt: "Vit Volkswagen Golf Alltrack efter rekond, fotograferad snett framifrån",
+    width: 1200,
+    height: 900,
   },
   {
-    src: "/generated-cars/bil-b-bmw-5-series/high-quality/front-three-quarter.webp",
-    alt: "BMW 5-serie efter rekond, fotograferad snett framifrån",
-    width: 2560,
-    height: 1920,
+    src: "/assets/photos/real-results/gallery-real-volvo.webp",
+    alt: "Vit Volvo XC60 efter rekond, fotograferad snett framifrån",
+    width: 1200,
+    height: 900,
   },
   {
-    src: "/7/641426997_122103204957264467_7687419129836615744_n-16x9-polished.jpg",
-    alt: "Svart Volvo efter rekond i tvätthallen",
-    width: 2048,
-    height: 1152,
+    src: "/assets/photos/real-results/gallery-real-volvo-xc40.webp",
+    alt: "Svart Volvo XC40 efter rekond med nytvättade gummimattor på tork i bakgrunden",
+    width: 1600,
+    height: 900,
   },
 ];

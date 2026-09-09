@@ -4,13 +4,23 @@
 // from the right on a timer (reviews dwell 4s, cars 2s). Replaces the old
 // pair of auto-scrolling marquee bands (ReviewMarquee.astro + Marquee.astro).
 //
-// Every review shows five stars regardless of source; the source line under
-// the name still names where each review came from. Quotes are VERBATIM from
-// the client's Google/Facebook profiles — do not tidy them up.
+// Every review is a five-star Google review, quoted VERBATIM from the
+// client's Google Business profile — do not tidy them up. The source line
+// under the name says where it came from and the rating row links there.
 import ImagePlaceholder from "./ImagePlaceholder.astro";
 import Stars from "./Stars.astro";
-import { reviews } from "../data/reviews";
+import {
+  reviews,
+  googleReviewsUrl,
+  googleRating,
+  googleReviewCount,
+} from "../data/reviews";
 import { galleryShots } from "../data/gallery";
+
+// Pause/play control rendered into both rotators (WCAG 2.2.2). Any manual
+// interaction — arrows, dots or this button — stops the auto-rotation for
+// good; the button can start it again.
+const toggleLabels = { pause: "Pausa bildspelet", play: "Starta bildspelet" };
 
 // Prev/next controls, rendered into both rotators: same disc, mirrored
 // chevron.  is the step the script applies to the current index.
@@ -21,7 +31,6 @@ const navArrows = [
 
 const sources = {
   google: { label: "Google", icon: "/assets/icons/icon-google.svg" },
-  facebook: { label: "Facebook", icon: "/assets/icons/icon-facebook.svg" },
 } as const;
 ---
 
@@ -35,17 +44,37 @@ const sources = {
       </h2>
       <p class="spotlight-sub">
         Varje bild är en riktig kundbil från anläggningen i Umeå – och varje
-        omdöme kommer ordagrant från våra kunder på Google och Facebook.
+        omdöme är hämtat ordagrant från våra kunders recensioner på Google.
       </p>
     </header>
 
     {/* Rating row + review rotator share ONE panel; the dashed accent divider
         separates them instead of each carrying its own box. */}
     <div class="spotlight-panel">
-      <p class="spotlight-rating">
+      <a
+        class="spotlight-rating"
+        href={googleReviewsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <span class="spotlight-rating-stars"><Stars /></span>
-        <span><strong>5,0</strong> på Google</span>
-      </p>
+        <span>
+          <strong>{googleRating}</strong> på Google · {googleReviewCount} recensioner
+        </span>
+        <svg
+          class="spotlight-rating-arrow"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17L17 7M9 7h8v8"></path>
+        </svg>
+        <span class="sr-only">(öppnas i nytt fönster)</span>
+      </a>
 
       <span class="dashed-divider" aria-hidden="true"></span>
 
@@ -109,6 +138,26 @@ const sources = {
           </svg>
         </button>
       ))}
+
+      {reviews.length > 1 && (
+        <button
+          class="spotlight-toggle"
+          type="button"
+          data-toggle
+          aria-pressed="false"
+          aria-label={toggleLabels.pause}
+          data-label-pause={toggleLabels.pause}
+          data-label-play={toggleLabels.play}
+        >
+          <svg class="spotlight-toggle-icon spotlight-toggle-icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+          </svg>
+          <svg class="spotlight-toggle-icon spotlight-toggle-icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"></path>
+          </svg>
+        </button>
+      )}
       </div>
     </div>
   </div>
@@ -174,6 +223,26 @@ const sources = {
         </svg>
       </button>
     ))}
+
+    {galleryShots.length > 1 && (
+      <button
+        class="spotlight-toggle"
+        type="button"
+        data-toggle
+        aria-pressed="false"
+        aria-label={toggleLabels.pause}
+        data-label-pause={toggleLabels.pause}
+        data-label-play={toggleLabels.play}
+      >
+        <svg class="spotlight-toggle-icon spotlight-toggle-icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+          <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+        </svg>
+        <svg class="spotlight-toggle-icon spotlight-toggle-icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"></path>
+        </svg>
+      </button>
+    )}
   </div>
 </section>
 
@@ -235,6 +304,29 @@ const sources = {
   .spotlight-rating strong {
     font-weight: 600;
     color: var(--color-text-white);
+  }
+
+  /* It is a link to the Google profile now — the hover lifts the whole row */
+  .spotlight-rating {
+    transition: color var(--transition-base);
+  }
+
+  .spotlight-rating:hover {
+    color: var(--color-text-white);
+  }
+
+  .spotlight-rating-arrow {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    margin-left: auto;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color var(--transition-base), transform var(--transition-base);
+  }
+
+  .spotlight-rating:hover .spotlight-rating-arrow {
+    color: var(--color-accent);
+    transform: translate(0.125em, -0.125em);
   }
 
   /* No font-size here: --text-sm is em-based, so restating it inside the
@@ -360,12 +452,14 @@ const sources = {
     font-size: var(--text-sm); /* drives the star size — see Stars.astro */
   }
 
-  /* Clamped so wildly different review lengths still give an even window */
+  /* Clamped so wildly different review lengths still give an even window.
+     Six lines fits every current review in full at the desktop column width —
+     a verbatim quote cut off mid-sentence would misrepresent the reviewer. */
   .review-quote {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
     overflow: hidden;
     font-size: var(--text-sm);
     line-height: 1.5714;
@@ -489,6 +583,65 @@ const sources = {
     }
   }
 
+  /* ---------- Pause/play toggle ---------- */
+
+  /* Same glass disc as the arrows, pinned to the bottom-right corner */
+  .spotlight-toggle {
+    position: absolute;
+    right: 0.75em;
+    bottom: 0.75em;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25em; /* 36px */
+    height: 2.25em;
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-white);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .spotlight-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.65);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .spotlight-toggle-icon {
+    width: 1em;
+    height: 1em;
+  }
+
+  .spotlight-toggle-icon--play,
+  .spotlight-toggle[aria-pressed="true"] .spotlight-toggle-icon--pause {
+    display: none;
+  }
+
+  .spotlight-toggle[aria-pressed="true"] .spotlight-toggle-icon--play {
+    display: block;
+  }
+
+  /* The review window is a text card: tuck the toggle into its corner
+     without stealing the card's padding. */
+  .spotlight-window--reviews .spotlight-toggle {
+    right: 0.5em;
+    bottom: 0.5em;
+    width: 1.875em; /* 30px */
+    height: 1.875em;
+  }
+
+  /* Nothing ever auto-rotates for reduced-motion users — no toggle either */
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight-toggle {
+      display: none;
+    }
+  }
+
   /* ---------- Slide indicators (cars) ---------- */
 
   .spotlight-dots {
@@ -499,12 +652,19 @@ const sources = {
     z-index: 3;
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 0.125em; /* the buttons carry their own side padding now */
   }
 
-  /* The button is taller than the pill it draws — a finger-sized hit area */
+  /* The button is bigger than the pill it draws — WCAG 2.5.8 wants at least
+     24×24px of target, so both axes get px floors that ignore the fluid
+     scale. The pills stay 12px wide visually; the padding makes up the rest. */
   .spotlight-dot {
-    padding: 0.625em 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0.625em 0.375em;
     cursor: pointer;
   }
 
@@ -650,15 +810,29 @@ const sources = {
       fill.style.animation = "";
     };
 
-    // The rotator only runs while it is on screen, the tab is visible, and a
+    // The rotator only runs while it is on screen, the tab is visible, a
     // mouse isn't resting on it (hover-to-pause; guarded to real hover
-    // pointers so a phone tap can't stall the show).
+    // pointers so a phone tap can't stall the show), and the visitor hasn't
+    // stopped it. `stopped` is the WCAG 2.2.2 mechanism: any manual control
+    // sets it, and only the pause/play button clears it again.
     let onScreen = false;
     let hovered = false;
+    let stopped = false;
+
+    const toggle = rotator.querySelector<HTMLButtonElement>("[data-toggle]");
+
+    const syncToggle = () => {
+      if (!toggle) return;
+      toggle.setAttribute("aria-pressed", String(stopped));
+      toggle.setAttribute(
+        "aria-label",
+        (stopped ? toggle.dataset.labelPlay : toggle.dataset.labelPause) ?? "",
+      );
+    };
 
     const sync = () => {
       const shouldRun =
-        onScreen && !hovered && !document.hidden && !reduceMotion.matches;
+        onScreen && !hovered && !stopped && !document.hidden && !reduceMotion.matches;
       rotator.classList.toggle("is-paused", !shouldRun);
       if (shouldRun && timer === undefined) {
         preload(current + 1);
@@ -670,16 +844,24 @@ const sources = {
       }
     };
 
-    // Every manual control routes through here: jump, then hand the new slide
-    // a fresh full period instead of the remainder of the old one.
+    // Every manual control routes through here: jump, then leave the visitor
+    // in charge — the slide they chose stays until they pick another one.
     const jumpTo = (target: number) => {
       goTo(target);
+      stopped = true;
+      syncToggle();
+      sync();
+    };
+
+    toggle?.addEventListener("click", () => {
+      stopped = !stopped;
+      syncToggle();
       if (timer !== undefined) {
         window.clearInterval(timer);
         timer = undefined;
       }
       sync();
-    };
+    });
 
     dots.forEach((dot, index) => {
       dot.addEventListener("click", () => jumpTo(index));

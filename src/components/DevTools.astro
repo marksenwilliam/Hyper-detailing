@@ -1,0 +1,16 @@
+---
+// DEV-ONLY. Agentation is a visual annotation widget for precise,
+// click-to-point edits; `endpoint` connects it to the local Agent Sync server
+// on :4747 so annotations flow through the agentation MCP straight to the AI
+// agent (no copy/paste). Only a serializable string prop is passed —
+// client:only islands can't take function props like onSessionCreated.
+//
+// This file is the ONLY place that imports "agentation". BaseLayout pulls it
+// in through `import.meta.env.DEV ? await import(...) : null`, which the
+// production build folds to `null` — so neither this component, React nor
+// the widget's client bundle ends up in dist/. (A static import in the
+// layout used to leave three unused React chunks in dist/_astro.)
+import { Agentation } from "agentation";
+---
+
+<Agentation client:only="react" endpoint="http://localhost:4747" />

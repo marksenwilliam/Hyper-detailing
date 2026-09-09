@@ -1,19 +1,25 @@
 ---
 // Full-bleed media card: responsive generated artwork fills the whole rounded
-// section behind accessible live copy.
+// section behind accessible live copy and the page's closing pair of CTAs.
+import { site } from "../data/site";
 ---
 
-<section class="cta">
+<section class="cta" aria-labelledby="cta-title">
   <div class="cta-card" data-animate="fade-up">
     <div class="cta-content">
       <div class="cta-text">
-        <h2 class="cta-title">
+        <h2 class="cta-title" id="cta-title">
           Redo att ge din bil <span class="accent">ny lyster?</span>
         </h2>
         <p class="cta-sub">
           Boka din tid idag – vi tar hand om resten. Kostnadsfri offert och personlig
           rådgivning för just din bil.
         </p>
+      </div>
+
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="#kontakt">Boka tid</a>
+        <a class="btn btn-ghost" href={site.phoneHref}>Ring {site.phone}</a>
       </div>
     </div>
   </div>
@@ -43,6 +49,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 2em;
     width: 36.75em; /* 588px */
     max-width: 100%;
     padding: 4.3125em var(--cell-padding);
@@ -71,7 +78,23 @@
     max-width: 27.5625em; /* 441px */
     font-size: var(--text-base);
     line-height: 1.5;
-    color: var(--color-text-body);
+    /* Lighter than the body grey: this sits on artwork, not a flat card */
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75em;
+  }
+
+  /* The ghost button sits on a busy backdrop — give it a real fill so the
+     label stays readable over the artwork's bright spots. */
+  .cta-actions .btn-ghost {
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 
   @media screen and (max-width: 991px) {
@@ -93,6 +116,17 @@
   @media screen and (max-width: 479px) {
     .cta-card {
       background-image: url("/generated-graphics/hyper-3d/cta-background-mobile.webp");
+    }
+
+    .cta-actions {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .cta-actions .btn {
+      width: 100%;
+      min-height: 44px;
     }
   }
 </style>

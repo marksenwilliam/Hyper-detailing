@@ -1,0 +1,206 @@
+---
+// Privacy notice — the information GDPR art. 13 requires when personal data is
+// collected from the data subject (here: when someone books or contacts us).
+// The site itself sets no cookies and runs no analytics, and the booking form
+// only opens the visitor's own mail app, so the notice is about what happens
+// once a booking request reaches the business.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LegalPage from "../components/LegalPage.astro";
+import { site, fullAddress } from "../data/site";
+
+const title = "Integritetspolicy";
+const description =
+  "Så behandlar Hyper Detailing Umeå dina personuppgifter när du bokar eller kontaktar oss – vilka uppgifter, varför, hur länge och vilka rättigheter du har.";
+---
+
+<BaseLayout title={`${title} – ${site.fullName}`} description={description}>
+  <LegalPage
+    title={title}
+    lead="Vi är rädda om dina uppgifter. Här förklarar vi vilka personuppgifter vi behandlar när du kontaktar eller bokar hos oss, varför vi gör det och vilka rättigheter du har enligt dataskyddsförordningen (GDPR)."
+  >
+    <h2>Personuppgiftsansvarig</h2>
+    <div class="legal-card">
+      <p><strong>{site.legalName}</strong></p>
+      {site.orgNumber && <p>Org.nr {site.orgNumber}</p>}
+      <p>{fullAddress}</p>
+      <p>E-post: <a href={`mailto:${site.email}`}>{site.email}</a></p>
+      <p>Telefon: <a href={site.phoneHref}>{site.phone}</a></p>
+    </div>
+    <p>
+      Har du frågor om hur vi hanterar dina uppgifter är du alltid välkommen att höra av
+      dig till oss via e-post eller telefon.
+    </p>
+
+    <h2>Vilka uppgifter vi behandlar och varför</h2>
+
+    <h3>När du kontaktar oss eller bokar en tid</h3>
+    <p>
+      När du ringer, sms:ar, mejlar eller skickar en bokningsförfrågan via formuläret på
+      webbplatsen behandlar vi de uppgifter du lämnar: namn, telefonnummer, e-postadress,
+      uppgifter om din bil (märke, modell och i förekommande fall registreringsnummer),
+      vilken tjänst du önskar samt det du skriver i ditt meddelande.
+    </p>
+    <ul>
+      <li>
+        <strong>Ändamål:</strong> att besvara din förfrågan, boka in och utföra tjänsten
+        och kontakta dig om bokningen, till exempel för att bekräfta tid och pris.
+      </li>
+      <li>
+        <strong>Rättslig grund:</strong> behandlingen är nödvändig för att fullgöra
+        avtalet med dig eller för att vidta åtgärder på din begäran innan ett avtal
+        ingås (artikel 6.1 b GDPR).
+      </li>
+    </ul>
+    <p>
+      Bokningsformuläret på webbplatsen lagrar ingenting hos oss – det öppnar ditt eget
+      e-postprogram med uppgifterna ifyllda, och meddelandet skickas först när du själv
+      väljer att skicka det.
+    </p>
+
+    <h3>När du betalar och vi bokför</h3>
+    <p>
+      Uppgifter om utförd tjänst, belopp, betaldatum och de kontaktuppgifter som behövs
+      på kvitto eller faktura sparas i vår bokföring.
+    </p>
+    <ul>
+      <li><strong>Ändamål:</strong> fakturering, betalning och bokföring.</li>
+      <li>
+        <strong>Rättslig grund:</strong> rättslig förpliktelse enligt bokföringslagen
+        (artikel 6.1 c GDPR).
+      </li>
+    </ul>
+
+    <h3>Vid reklamation eller tvist</h3>
+    <p>
+      Om du reklamerar en tjänst sparar vi uppgifterna i ärendet så länge det behövs för
+      att hantera det.
+    </p>
+    <ul>
+      <li><strong>Ändamål:</strong> att utreda och hantera reklamationen.</li>
+      <li>
+        <strong>Rättslig grund:</strong> vårt berättigade intresse av att kunna
+        fastställa, göra gällande eller försvara rättsliga anspråk (artikel 6.1 f GDPR),
+        samt rättsliga förpliktelser enligt konsumenttjänstlagen.
+      </li>
+    </ul>
+
+    <h3>Bilder på kundbilar</h3>
+    <p>
+      Vi visar ibland bilder på bilar vi behandlat i galleriet på webbplatsen och i våra
+      sociala medier. Registreringsskyltar suddas alltid ut, och vi publicerar bara
+      bilder på din bil om du har godkänt det. Du kan när som helst återkalla ditt
+      godkännande, så tar vi bort bilden.
+    </p>
+    <ul>
+      <li><strong>Rättslig grund:</strong> ditt samtycke (artikel 6.1 a GDPR).</li>
+    </ul>
+
+    <h3>Kundomdömen</h3>
+    <p>
+      På webbplatsen återger vi recensioner som kunder själva har publicerat offentligt
+      på vår Google-profil, ordagrant och med det namn som visas där. Vill du att din
+      recension inte ska visas på vår webbplats räcker det att du hör av dig, så tar vi
+      bort den.
+    </p>
+    <ul>
+      <li>
+        <strong>Rättslig grund:</strong> vårt berättigade intresse av att visa
+        äkta kundomdömen i vår marknadsföring (artikel 6.1 f GDPR).
+      </li>
+    </ul>
+
+    <h2>Hur länge vi sparar uppgifterna</h2>
+    <ul>
+      <li>
+        <strong>Förfrågningar som inte leder till bokning:</strong> raderas senast
+        tolv månader efter vår senaste kontakt.
+      </li>
+      <li>
+        <strong>Bokningar och utförda tjänster:</strong> sparas så länge du kan
+        reklamera tjänsten enligt konsumenttjänstlagen, det vill säga tre år efter
+        utförandet.
+      </li>
+      <li>
+        <strong>Bokföringsunderlag:</strong> sparas i sju år efter räkenskapsårets slut,
+        som bokföringslagen kräver.
+      </li>
+    </ul>
+
+    <h2>Vilka vi delar uppgifter med</h2>
+    <p>
+      Vi säljer aldrig dina uppgifter. De delas bara med leverantörer som hjälper oss att
+      driva verksamheten och som behandlar uppgifterna för vår räkning enligt
+      personuppgiftsbiträdesavtal:
+    </p>
+    <ul>
+      <li>
+        <strong>E-post:</strong> vår e-post hanteras av Google (Gmail). Google kan
+        behandla uppgifter i USA; överföringen sker med stöd av EU-kommissionens beslut
+        om adekvat skyddsnivå (EU–US Data Privacy Framework) och Googles
+        standardavtalsklausuler.
+      </li>
+      <li>
+        <strong>Betalning och bokföring:</strong> leverantörer av betaltjänster samt
+        vår redovisningskonsult, i den mån uppgifterna behövs för betalning och bokföring.
+      </li>
+      <li>
+        <strong>Myndigheter:</strong> när vi är skyldiga enligt lag, till exempel
+        Skatteverket.
+      </li>
+    </ul>
+
+    <h2>Cookies och besök på webbplatsen</h2>
+    <p>
+      Webbplatsen använder <strong>inga cookies</strong> och ingen besöksstatistik eller
+      spårning. Typsnitt och skript laddas från vår egen server, så inga uppgifter om
+      ditt besök skickas till tredje part. Därför behöver du inte ta ställning till någon
+      cookie-ruta.
+    </p>
+    <p>
+      Webbservern kan tillfälligt logga din IP-adress och teknisk information om din
+      webbläsare för att kunna leverera sidan och skydda den mot angrepp. Den
+      behandlingen grundar sig på vårt berättigade intresse av en säker och fungerande
+      webbplats (artikel 6.1 f GDPR), och loggarna gallras löpande.
+    </p>
+    <p>
+      Webbplatsen innehåller länkar till Google Maps och till våra konton i sociala
+      medier. När du klickar på en sådan länk lämnar du vår webbplats, och det är
+      respektive tjänsts integritetspolicy som gäller.
+    </p>
+
+    <h2>Dina rättigheter</h2>
+    <p>Enligt GDPR har du rätt att:</p>
+    <ul>
+      <li>få tillgång till de uppgifter vi har om dig (registerutdrag),</li>
+      <li>få felaktiga uppgifter rättade,</li>
+      <li>få dina uppgifter raderade när de inte längre behövs,</li>
+      <li>begära att behandlingen begränsas,</li>
+      <li>få ut dina uppgifter i ett maskinläsbart format (dataportabilitet),</li>
+      <li>invända mot behandling som grundar sig på berättigat intresse,</li>
+      <li>när som helst återkalla ett samtycke du har lämnat.</li>
+    </ul>
+    <p>
+      Vill du använda någon av dina rättigheter, mejla oss på
+      <a href={`mailto:${site.email}`}>{site.email}</a>. Vi svarar utan onödigt dröjsmål
+      och senast inom en månad.
+    </p>
+    <p>
+      Om du anser att vi behandlar dina uppgifter felaktigt har du rätt att lämna in ett
+      klagomål till tillsynsmyndigheten:
+    </p>
+    <div class="legal-card">
+      <p><strong>Integritetsskyddsmyndigheten (IMY)</strong></p>
+      <p>Box 8114, 104 20 Stockholm</p>
+      <p>
+        <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer">www.imy.se</a>
+      </p>
+    </div>
+
+    <h2>Ändringar</h2>
+    <p>
+      Vi kan komma att uppdatera den här policyn, till exempel om vi börjar använda nya
+      tjänster. Den senaste versionen finns alltid här på webbplatsen, med datum för
+      senaste uppdatering överst.
+    </p>
+  </LegalPage>
+</BaseLayout>

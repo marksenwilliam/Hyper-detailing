@@ -71,7 +71,7 @@ export const packages: Package[] = [
   {
     id: "lackering",
     name: "Lackering",
-    price: "2 000 kr",
+    price: "3 000 kr",
     unit: "per detalj",
     desc: "Lackering av enskild detalj eller yta – priset gäller per detalj.",
     points: [

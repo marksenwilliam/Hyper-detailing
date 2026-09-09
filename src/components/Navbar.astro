@@ -1,19 +1,23 @@
 ---
 import { site } from "../data/site";
 
+// Root-relative anchors ("/#tjanster", not "#tjanster") so the same menu works
+// from the legal pages too: on "/" the browser treats them as in-page fragment
+// jumps (smooth scroll intact), and on /villkor they navigate home first.
+// "/#top" is the spec-defined "scroll to top" fragment.
 const links = [
-  { label: "Hem", href: "#" },
-  { label: "Tjänster", href: "#tjanster" },
-  { label: "Priser", href: "#priser" },
-  { label: "Galleri", href: "#galleri" },
-  { label: "Vanliga frågor", href: "#faq" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "Hem", href: "/#top" },
+  { label: "Tjänster", href: "/#tjanster" },
+  { label: "Priser", href: "/#priser" },
+  { label: "Galleri", href: "/#galleri" },
+  { label: "Vanliga frågor", href: "/#faq" },
+  { label: "Kontakt", href: "/#kontakt" },
 ];
 ---
 
 <header class="site-header">
   <nav class="navbar" aria-label="Huvudmeny">
-    <a class="brand" href="/" aria-label={`${site.fullName} — startsida`}>
+    <a class="brand" href="/#top" aria-label={`${site.fullName} — startsida`}>
       <!-- Full lockup on wider screens, mark only when the pill gets tight -->
       <img
         class="brand-lockup"
@@ -42,7 +46,7 @@ const links = [
     </ul>
 
     <div class="nav-actions">
-      <a class="signup btn btn-primary" href="#kontakt">Boka tid</a>
+      <a class="signup btn btn-primary" href="/#kontakt">Boka tid</a>
 
       <button
         class="nav-toggle"
@@ -281,6 +285,14 @@ const links = [
     if (!toggle.offsetParent) return;
     setOpen(false);
     toggle.focus();
+  });
+
+  // Tapping anywhere outside the pill closes the dropdown, so it can't sit
+  // open over the page after the visitor has moved on.
+  document.addEventListener("click", (event) => {
+    if (toggle?.getAttribute("aria-expanded") !== "true") return;
+    if ((event.target as Element).closest(".site-header")) return;
+    setOpen(false);
   });
 
   // Crossing up into the desktop layout discards the dropdown state, so a

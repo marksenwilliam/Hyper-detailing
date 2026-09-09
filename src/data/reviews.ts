@@ -1,13 +1,15 @@
-// Real customer reviews, transcribed from screenshots of the client's Google
-// Business profile and Facebook page (supplied August 2026).
+// Real customer reviews, read straight off the company's Google Business
+// profile ("Hyperdetailing", Industrivägen 22, Umeå) on 2026-09-09.
 //
-// Quotes are VERBATIM — reviewers' own spelling, punctuation and emoji are kept
-// as written. Do not "fix" them; a tidied-up review reads as a fabricated one.
-//
-// Google reviews carry a star rating; Facebook entries are recommendations,
-// which have no stars — hence the source union rather than a rating field.
+// The profile had 15 reviews, all five stars; these are the ten that carry a
+// written comment (five are star-only). Names and quotes are VERBATIM as
+// Google shows them — reviewers' own spelling, punctuation and capitalisation
+// are kept. Do not "fix" them; a tidied-up review reads as a fabricated one,
+// and showing invented or edited reviews is misleading marketing under
+// marknadsföringslagen (2008:486). Only add quotes you can point to on the
+// profile, and keep googleReviewCount in step with it.
 
-export type ReviewSource = "google" | "facebook";
+export type ReviewSource = "google";
 
 export interface Review {
   name: string;
@@ -15,42 +17,27 @@ export interface Review {
   source: ReviewSource;
 }
 
-// TODO: Add the client's Google profile URL so the hero rating badge links to
-// the live reviews. Left empty on purpose — the badge renders unlinked until
-// there is a real URL to point at.
-export const googleReviewsUrl = "";
+// The business's Google Maps profile — where every quote below can be verified.
+// Used by the hero badge and the spotlight rating row.
+export const googleReviewsUrl = "https://maps.app.goo.gl/4qqXahKoziN2y8rDA";
+
+// Snapshot of the profile on 2026-09-09: 5,0 average from 15 reviews.
+// Update when the count changes — a stale number is worse than none.
+export const googleRating = "5,0";
+export const googleReviewCount = 15;
 
 export const reviews: Review[] = [
   {
-    name: "Sandra Maria Bergman",
-    quote: "Jäkligt bra service, blir alltid nöjd med tvätten😜 och servicen med bilen😜",
-    source: "google",
-  },
-  {
-    name: "Åsa Oskarsson",
-    quote: "Jättenöjd! Kunnig, trevlig och duktig personal",
-    source: "facebook",
-  },
-  {
-    name: "Jon Ahlman",
-    quote: "Fantastiskt prisvärt! Snabb service och trevligt bemötande.",
-    source: "google",
-  },
-  {
-    name: "Robert Lindgren",
+    name: "Rasmus Berglund",
     quote:
-      "Trevlig personal som gjorde ett helt suveränt jobb. Bilen såg hemsk ut innan och efteråt var den riktigt ren och fin. Kan starkt rekommendera att lämna in bilen här.",
-    source: "facebook",
-  },
-  {
-    name: "Marko Pöllänen",
-    quote: "Super trevligt mottagande. Seriöst och kunnigt rekommenderar varmt detta företag.",
+      "Helt fantastisk service, trevlig och kunnig kille samt allt till ett mycket bra pris. Kommer inte gå någon annanstans i Umeå framöver",
     source: "google",
   },
   {
-    name: "Anneli Niemi",
-    quote: "Så nöjd. Trevlig personal och ren och snygg bil. Tack 💗",
-    source: "facebook",
+    name: "Caspar Jönsson",
+    quote:
+      "Var hos Hyperdetailing nyligen med min Sharan för en rekond, både in- och utsidan. Mycket nöjd med resultatet. Kändes väldigt lyxigt",
+    source: "google",
   },
   {
     name: "Alexander Eriksson",
@@ -58,22 +45,33 @@ export const reviews: Review[] = [
     source: "google",
   },
   {
-    // TODO: The source screenshot cut this review off mid-sentence — paste the
-    // full text from Facebook and drop the ellipsis.
-    name: "Mirsad Imeri",
-    quote:
-      "Jag rekommenderar starkt detta företag dom höll va dom lovade resultatet blev enastående jag är super nöjd och rekommenderar flera att rekonda ni kan lämna bilen…",
-    source: "facebook",
+    name: "Ricky",
+    quote: "Toppen, noggrannhet och tillgänglighet. Rekommenderas!",
+    source: "google",
   },
   {
-    name: "Sofia Eklund",
-    quote:
-      "Alltid snabb service och enkla att ha att göra med. Lämnat in både för basservice, tvätt och andra reperationer. Alltid nöjd efteråt, så rekommenderar varmt! 😊",
+    name: "Anwar Hajar",
+    quote: "Mycket bra service och trevlig personal.",
+    source: "google",
+  },
+  {
+    name: "Sidad Mohammed Ali",
+    quote: "Utmärkt resultat. Helt nöjd",
     source: "google",
   },
   {
     name: "Samuel",
     quote: "Grym service och bra pris",
+    source: "google",
+  },
+  {
+    name: "Azad Hajar",
+    quote: "Mycket bra service!",
+    source: "google",
+  },
+  {
+    name: "Jotyar Ahmad",
+    quote: "Fantastisk",
     source: "google",
   },
   {

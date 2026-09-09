@@ -1,38 +1,52 @@
 ---
-import { site } from "../data/site";
+import { site, activeSocials, fullAddress } from "../data/site";
 
+// Mirrors the actual offer: the three service categories in #tjanster and the
+// two packages that only exist in the price list.
 const serviceLinks = [
-  { label: "Lackkorrigering", href: "#tjanster" },
-  { label: "Keramiskt lackskydd", href: "#tjanster" },
-  { label: "Utvändig rekond", href: "#tjanster" },
-  { label: "Invändig rekond", href: "#tjanster" },
+  { label: "Utvändig rekond", href: "/#tjanster" },
+  { label: "Invändig rekond", href: "/#tjanster" },
+  { label: "Keramiskt vaxskydd", href: "/#tjanster" },
+  { label: "Keramiskt lackskydd", href: "/#priser" },
+  { label: "Lackering", href: "/#priser" },
 ];
 
 const quickLinks = [
-  { label: "Hem", href: "#" },
-  { label: "Galleri", href: "#galleri" },
-  { label: "Priser", href: "#priser" },
-  { label: "Vanliga frågor", href: "#faq" },
+  { label: "Hem", href: "/#top" },
+  { label: "Galleri", href: "/#galleri" },
+  { label: "Priser", href: "/#priser" },
+  { label: "Vanliga frågor", href: "/#faq" },
+  { label: "Kontakt", href: "/#kontakt" },
+];
+
+// Pages required or strongly recommended by Swedish consumer and data law —
+// see the pages themselves for the statutes each one answers to.
+const legalLinks = [
+  { label: "Integritetspolicy", href: "/integritetspolicy" },
+  { label: "Villkor", href: "/villkor" },
 ];
 
 const year = new Date().getFullYear();
 
-// Opens the visitor's mail app with the subject already filled in. A mailto:
-// only does something when the device HAS a mail handler — on a desktop with
-// none registered the click is silently swallowed, which is exactly how it
-// looks when the button "does not work". The script at the bottom of this file
-// catches that case and falls back to `gmailHref`.
+// Opens the visitor's mail app with the subject already filled in. The
+// site-wide contact-link script in BaseLayout falls back to Gmail's compose
+// window when no mail app answers the mailto:.
 const mailSubject = "Förfrågan via hyperdetailingumea.se";
 const mailtoHref = `mailto:${site.email}?subject=${encodeURIComponent(mailSubject)}`;
-const gmailHref =
-  "https://mail.google.com/mail/?view=cm&fs=1" +
-  `&to=${encodeURIComponent(site.email)}&su=${encodeURIComponent(mailSubject)}`;
+
+// E-handelslagen (2002:562) 8 §: name, address, e-mail, org.nr and VAT number
+// must be easy to find. Rows without a value are skipped, but they are
+// launch-blocking — see the TODO in src/data/site.ts.
+const legalRows = [
+  site.orgNumber && `Org.nr ${site.orgNumber}`,
+  site.vatNumber && `Momsreg.nr ${site.vatNumber}`,
+].filter(Boolean);
 ---
 
-<footer class="site-footer" id="kontakt">
+<footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-top">
-      <a class="footer-brand" href="/" aria-label={`${site.fullName} — startsida`}>
+      <a class="footer-brand" href="/#top" aria-label={`${site.fullName} — startsida`}>
         <img
           src="/assets/brand/logo-horizontal.svg"
           alt=""
@@ -43,20 +57,29 @@ const gmailHref =
 
       <div class="footer-cta">
         <a class="btn btn-primary" href={site.phoneHref}>Ring {site.phone}</a>
-        <a class="btn btn-ghost" href={mailtoHref} data-mail-fallback={gmailHref}>Mejla oss</a>
+        <a class="btn btn-ghost" href={mailtoHref}>Mejla oss</a>
       </div>
 
-      <ul class="socials">
-        {
-          site.socials.map((social) => (
-            <li>
-              <a href={social.href} aria-label={social.label}>
-                <img src={social.icon} alt="" width="16" height="16" loading="lazy" />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      {
+        activeSocials.length > 0 ? (
+          <ul class="socials" aria-label="Sociala medier">
+            {activeSocials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  aria-label={`${site.name} på ${social.label}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={social.icon} alt="" width="16" height="16" loading="lazy" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span class="footer-top-spacer" aria-hidden="true" />
+        )
+      }
     </div>
 
     <div class="footer-grid">
@@ -65,7 +88,7 @@ const gmailHref =
         <ul>
           <li>
             <img src="/assets/icons/icon-pin.svg" alt="" width="20" height="20" />
-            <span>{site.address}, {site.postalCode} {site.city}</span>
+            <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer">{fullAddress}</a>
           </li>
           <li>
             <img src="/assets/icons/icon-phone.svg" alt="" width="20" height="20" />
@@ -91,6 +114,10 @@ const gmailHref =
               </li>
             ))
           }
+          <li>
+            <img src="/assets/icons/icon-check.svg" alt="" width="20" height="20" />
+            <span>Endast bokade tider</span>
+          </li>
         </ul>
       </div>
 
@@ -122,7 +149,19 @@ const gmailHref =
     </div>
 
     <div class="footer-bottom">
-      <p class="copyright">© {year} {site.fullName}. Alla rättigheter förbehållna.</p>
+      <p class="copyright">
+        © {year} {site.legalName}
+        {legalRows.map((row) => (
+          <span class="legal-row">
+            <span class="legal-sep" aria-hidden="true">·</span>
+            {row}
+          </span>
+        ))}
+      </p>
+
+      <nav class="legal-links" aria-label="Juridisk information">
+        {legalLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+      </nav>
     </div>
   </div>
 </footer>
@@ -141,8 +180,6 @@ const gmailHref =
   }
 
   /* ---------- Top row ---------- */
-  /* The root provides the outer padding, so this row keeps only its bottom
-     spacing against the link grid. */
   /* Three tracks so the buttons sit dead centre of the row rather than centred
      in the space the brand leaves over. The empty third track is what balances
      the brand block on the left. */
@@ -242,7 +279,8 @@ const gmailHref =
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5em;
+    flex-wrap: wrap;
+    gap: 0.75em 1.5em;
     padding: 1.5em 0 0;
   }
 
@@ -250,6 +288,32 @@ const gmailHref =
     font-size: var(--text-sm);
     line-height: 1.4286;
     color: var(--color-text-white);
+  }
+
+  .legal-sep {
+    margin-inline: 0.4em;
+    color: var(--color-text-body);
+  }
+
+  .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 1.25em;
+  }
+
+  .legal-links a {
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--color-border-strong);
+    transition: color var(--transition-base), text-decoration-color var(--transition-base);
+  }
+
+  .legal-links a:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
   }
 
   /* Right-hand track of the top row */
@@ -288,6 +352,10 @@ const gmailHref =
       grid-template-columns: 1fr;
       justify-items: center;
       gap: 1.5em;
+    }
+
+    .footer-top-spacer {
+      display: none;
     }
   }
 
@@ -341,6 +409,25 @@ const gmailHref =
     .footer-col-contact img {
       margin-top: 0;
     }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .legal-row {
+      display: block;
+    }
+
+    .legal-row .legal-sep {
+      display: none;
+    }
+
+    .legal-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
   }
 
   @media screen and (max-width: 479px) {
@@ -357,44 +444,3 @@ const gmailHref =
   }
 </style>
 
-<script>
-  // A mailto: hands the click to the device's mail app, and the page loses
-  // focus almost immediately when it does. With no handler registered nothing
-  // happens at all — the button reads as dead. So: watch for that hand-off,
-  // and if it never comes, open Gmail's compose window instead.
-  //
-  // The wait has to clear a slow-launching mail client without making the
-  // visitor sit and wonder; ~0.9s does both, and stays inside the browser's
-  // transient user activation so window.open is not treated as a popup.
-  const HANDOFF_MS = 900;
-
-  document
-    .querySelectorAll<HTMLAnchorElement>("[data-mail-fallback]")
-    .forEach((link) => {
-      const webmail = link.dataset.mailFallback;
-      if (!webmail) return;
-
-      link.addEventListener("click", () => {
-        let handedOff = false;
-        const markHandedOff = () => {
-          handedOff = true;
-        };
-
-        // Any of the three means something else took the click
-        window.addEventListener("blur", markHandedOff, { once: true });
-        window.addEventListener("pagehide", markHandedOff, { once: true });
-        document.addEventListener("visibilitychange", markHandedOff, { once: true });
-
-        window.setTimeout(() => {
-          window.removeEventListener("blur", markHandedOff);
-          window.removeEventListener("pagehide", markHandedOff);
-          document.removeEventListener("visibilitychange", markHandedOff);
-          if (handedOff || document.hidden) return;
-
-          // Still here, still focused: no mail app took the mailto:
-          const tab = window.open(webmail, "_blank", "noopener");
-          if (!tab) window.location.href = webmail; // popup blocked
-        }, HANDOFF_MS);
-      });
-    });
-</script>

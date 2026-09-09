@@ -1,0 +1,643 @@
+---
+// Contact & booking: every "Boka tid" button on the page lands here.
+//
+// Left column: the direct channels (call, SMS, e-mail, map, hours). Right
+// column: a booking request form. The site is static with no backend, so the
+// form composes an e-mail in the visitor's own mail app (mailto:) with every
+// field filled in — and falls back to Gmail's compose window when no mail app
+// takes the hand-off (same trick as the footer's "Mejla oss" button).
+//
+// Upgrade path: set data-endpoint on the <form> to an HTTPS form service URL
+// (Web3Forms, Formspree, a Netlify/Vercel function …) and the script below
+// POSTs the fields as JSON instead of opening the mail app. Nothing else
+// changes. See README.md → "Bokningsformulär".
+//
+// GDPR: no field is stored or sent anywhere by this site — the data only ever
+// travels inside the visitor's own e-mail. The note under the form says so and
+// links the privacy policy (art. 13 information duty).
+import { site, fullAddress } from "../data/site";
+import { packages } from "../data/packages";
+
+const subjectPrefix = "Bokningsförfrågan via hyperdetailingumea.se";
+const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
+
+const serviceOptions = [
+  ...packages.map((pkg) => pkg.name),
+  "Vet inte – vill ha rådgivning",
+  "Annat",
+];
+---
+
+<section class="contact" id="kontakt" aria-labelledby="contact-title">
+  <div class="container">
+    <header class="contact-head" data-animate="fade-up">
+      <span class="section-label">Kontakt &amp; bokning</span>
+      <div class="contact-head-row">
+        <h2 class="section-heading" id="contact-title">
+          Boka <span class="accent">din tid</span>
+        </h2>
+        <p class="contact-head-sub">
+          Ring, sms:a, mejla eller skicka en bokningsförfrågan – vi återkommer
+          snabbt och bekräftar tiden med dig. Vi arbetar enbart med bokade tider.
+        </p>
+      </div>
+    </header>
+
+    <div class="contact-grid">
+      <!-- ---------- Direct channels ---------- -->
+      <div class="contact-card" data-animate="fade-up">
+        <h3 class="contact-card-title">Snabbast: ring eller sms:a</h3>
+
+        <ul class="contact-list">
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <img src="/assets/icons/icon-phone.svg" alt="" width="20" height="20" />
+            </span>
+            <span class="contact-body">
+              <span class="contact-label">Telefon</span>
+              <a class="contact-value contact-value--big" href={site.phoneHref}>{site.phone}</a>
+              <span class="contact-hint">Svar direkt under öppettid – lämna ett meddelande om vi står med händerna i skummet.</span>
+            </span>
+          </li>
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <img src="/assets/icons/icon-mail.svg" alt="" width="20" height="20" />
+            </span>
+            <span class="contact-body">
+              <span class="contact-label">E-post</span>
+              <a class="contact-value" href={`mailto:${site.email}`}>{site.email}</a>
+            </span>
+          </li>
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <img src="/assets/icons/icon-pin.svg" alt="" width="20" height="20" />
+            </span>
+            <span class="contact-body">
+              <span class="contact-label">Hitta hit</span>
+              <a class="contact-value" href={site.mapsUrl} target="_blank" rel="noopener noreferrer">{fullAddress}</a>
+              <span class="contact-links">
+                <a class="contact-link" href={site.directionsUrl} target="_blank" rel="noopener noreferrer">
+                  Vägbeskrivning (GPS)
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 17L17 7M9 7h8v8"></path>
+                  </svg>
+                </a>
+                <a class="contact-link" href={site.mapsUrl} target="_blank" rel="noopener noreferrer">
+                  Visa på Google Maps
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 17L17 7M9 7h8v8"></path>
+                  </svg>
+                </a>
+              </span>
+            </span>
+          </li>
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <img src="/assets/icons/icon-clock.svg" alt="" width="20" height="20" />
+            </span>
+            <span class="contact-body">
+              <span class="contact-label">Öppettider</span>
+              {site.hours.map((row) => (
+                <span class="contact-value">{row.days}: {row.time}</span>
+              ))}
+            </span>
+          </li>
+        </ul>
+
+        <div class="contact-actions">
+          <a class="btn btn-primary" href={site.phoneHref}>Ring nu</a>
+          <a class="btn btn-ghost" href={site.smsHref}>Skicka sms</a>
+        </div>
+      </div>
+
+      <!-- ---------- Booking request form ---------- -->
+      <form
+        class="contact-form"
+        id="booking-form"
+        method="post"
+        action={`mailto:${site.email}`}
+        novalidate
+        data-animate="fade-up"
+        data-to={site.email}
+        data-phone={site.phoneHref}
+        data-subject={subjectPrefix}
+        data-gmail={gmailCompose}
+      >
+        <h3 class="contact-card-title">Skicka bokningsförfrågan</h3>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="bf-name">Namn <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-name" name="Namn" type="text" autocomplete="name" required />
+          </div>
+
+          <div class="field">
+            <label for="bf-phone">Telefon <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-phone" name="Telefon" type="tel" autocomplete="tel" inputmode="tel" required />
+          </div>
+
+          <div class="field">
+            <label for="bf-email">E-post</label>
+            <input id="bf-email" name="E-post" type="email" autocomplete="email" inputmode="email" />
+          </div>
+
+          <div class="field">
+            <label for="bf-car">Bil (märke, modell, år)</label>
+            <input id="bf-car" name="Bil" type="text" placeholder="T.ex. Volvo XC60 2019" />
+          </div>
+
+          <div class="field">
+            <label for="bf-service">Tjänst</label>
+            <select id="bf-service" name="Tjänst">
+              <option value="">Välj tjänst</option>
+              {serviceOptions.map((name) => <option value={name}>{name}</option>)}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="bf-time">Önskad tid</label>
+            <input id="bf-time" name="Önskad tid" type="text" placeholder="T.ex. fredag förmiddag" />
+          </div>
+
+          <div class="field field--full">
+            <label for="bf-message">Meddelande</label>
+            <textarea id="bf-message" name="Meddelande" rows="4" placeholder="Berätta gärna om bilens skick eller om det är något särskilt du vill ha hjälp med."></textarea>
+          </div>
+        </div>
+
+        <p class="form-error" id="bf-error" role="alert" hidden>
+          Fyll i namn och telefonnummer så att vi kan nå dig.
+        </p>
+
+        <div class="form-footer">
+          <button class="btn btn-primary form-submit" type="submit">Skicka bokningsförfrågan</button>
+          <p class="form-note">
+            Formuläret öppnar ditt e-postprogram med uppgifterna ifyllda – inget sparas
+            på webbplatsen. Vi använder uppgifterna bara för att hantera din förfrågan.
+            <a href="/integritetspolicy">Läs vår integritetspolicy</a>.
+          </p>
+        </div>
+
+        <p class="form-status" id="bf-status" role="status" aria-live="polite" hidden></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The section surface comes from the global card rule; the root only adds
+     the internal padding every content section carries. */
+  .contact {
+    padding: var(--cell-padding);
+  }
+
+  /* ---------- Header ---------- */
+  .contact-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    padding: 0 0 var(--spacing-2xl);
+  }
+
+  .contact-head .section-label {
+    align-self: flex-start;
+  }
+
+  .contact-head-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3em;
+  }
+
+  .section-heading {
+    max-width: 36.75em; /* 588px */
+  }
+
+  .contact-head-sub {
+    max-width: 26.1875em; /* 419px */
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  /* ---------- Two columns ---------- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 1em;
+    align-items: stretch;
+  }
+
+  .contact-card,
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    padding: var(--cell-padding);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-card);
+  }
+
+  .contact-card-title {
+    font-size: 1.5em; /* 24px */
+    font-weight: 600;
+    line-height: 1.333;
+    letter-spacing: -0.72px;
+    color: var(--color-text-white);
+  }
+
+  /* ---------- Channel list ---------- */
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+  }
+
+  .contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875em;
+  }
+
+  .contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5em; /* 40px */
+    height: 2.5em;
+    border: 1px solid rgba(254, 74, 0, 0.5);
+    border-radius: 50%;
+    background-color: rgba(254, 74, 0, 0.12);
+  }
+
+  .contact-icon img {
+    width: 1.25em;
+    height: 1.25em;
+  }
+
+  .contact-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    min-width: 0;
+  }
+
+  .contact-label {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-body);
+  }
+
+  .contact-value {
+    font-size: var(--text-base);
+    line-height: 1.4;
+    color: var(--color-text-white);
+    overflow-wrap: anywhere;
+  }
+
+  a.contact-value {
+    transition: color var(--transition-base);
+  }
+
+  a.contact-value:hover,
+  .contact-link:hover {
+    color: var(--color-accent);
+  }
+
+  .contact-value--big {
+    font-size: 1.5em; /* 24px */
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .contact-hint {
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: var(--color-text-body);
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 1.25em;
+  }
+
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    margin-top: 0.25em;
+    min-height: 2em;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-white);
+    transition: color var(--transition-base);
+  }
+
+  .contact-link svg {
+    width: 1em;
+    height: 1em;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75em;
+    margin-top: auto;
+  }
+
+  /* ---------- Form ---------- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1em;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    min-width: 0;
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.4286;
+    color: var(--color-text-white);
+  }
+
+  .req {
+    color: var(--color-accent);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 2.75em; /* 44px tap target */
+    padding: 0.625em 0.875em;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-white);
+    background-color: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 6em;
+  }
+
+  .field select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.5em;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.875em center;
+    background-size: 1em;
+  }
+
+  .field select option {
+    color: #111;
+    background-color: #fff;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 0;
+    border-color: var(--color-accent);
+  }
+
+  /* Only flagged after a submit attempt (the .was-validated hook), so an
+     untouched form never opens red. */
+  .contact-form.was-validated .field input:invalid,
+  .contact-form.was-validated .field select:invalid {
+    border-color: #e74a51;
+  }
+
+  .form-error {
+    font-size: var(--text-sm);
+    line-height: 1.4286;
+    color: #ff8a8f;
+  }
+
+  .form-error[hidden],
+  .form-status[hidden] {
+    display: none;
+  }
+
+  .form-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+  }
+
+  .form-submit {
+    min-height: 2.75em;
+  }
+
+  .form-note {
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .form-note a,
+  .form-status a {
+    color: var(--color-text-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition: color var(--transition-base);
+  }
+
+  .form-note a:hover,
+  .form-status a:hover {
+    color: var(--color-accent);
+  }
+
+  .form-status {
+    padding: 0.875em 1em;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text-white);
+    background-color: rgba(254, 74, 0, 0.1);
+    border: 1px solid rgba(254, 74, 0, 0.35);
+    border-radius: var(--radius-md);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media screen and (max-width: 991px) {
+    .contact-head-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1em;
+    }
+
+    .section-heading,
+    .contact-head-sub {
+      max-width: none;
+    }
+
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .contact-actions .btn,
+    .form-submit {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("#booking-form");
+  const status = document.querySelector<HTMLElement>("#bf-status");
+  const error = document.querySelector<HTMLElement>("#bf-error");
+
+  // How long to wait for the mail app before assuming nobody answered the
+  // mailto: — see the note in Footer.astro.
+  const HANDOFF_MS = 900;
+
+  const setStatus = (html: string) => {
+    if (!status) return;
+    status.innerHTML = html;
+    status.hidden = false;
+  };
+
+  if (form) {
+    // Every field in source order → "Label: value" lines, empty ones skipped
+    const collect = () => {
+      const lines: string[] = [];
+      const data: Record<string, string> = {};
+      form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        "input[name], select[name], textarea[name]",
+      ).forEach((field) => {
+        const value = field.value.trim();
+        if (!value) return;
+        data[field.name] = value;
+        lines.push(`${field.name}: ${value}`);
+      });
+      return { lines, data };
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      form.classList.add("was-validated");
+
+      if (!form.checkValidity()) {
+        if (error) error.hidden = false;
+        form.querySelector<HTMLElement>(":invalid")?.focus();
+        return;
+      }
+      if (error) error.hidden = true;
+
+      const { lines, data } = collect();
+      const name = data["Namn"] ?? "";
+      const service = data["Tjänst"] ? ` – ${data["Tjänst"]}` : "";
+      const subject = `${form.dataset.subject}${service} – ${name}`;
+      const body =
+        `Hej!\n\nJag vill boka tid hos Hyper Detailing.\n\n` +
+        lines.join("\n") +
+        `\n\nSkickat från bokningsformuläret på hyperdetailingumea.se`;
+
+      // ---- Optional backend: POST as JSON and stay on the page
+      const endpoint = form.dataset.endpoint;
+      if (endpoint) {
+        const submit = form.querySelector<HTMLButtonElement>("button[type='submit']");
+        if (submit) submit.disabled = true;
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ subject, ...data }),
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          form.reset();
+          form.classList.remove("was-validated");
+          setStatus("Tack! Din förfrågan är skickad – vi hör av oss så snart vi kan.");
+        } catch {
+          setStatus(
+            `Det gick inte att skicka just nu. <a href="${form.dataset.phone}">Ring oss</a> ` +
+              `eller <a href="mailto:${form.dataset.to}">mejla ${form.dataset.to}</a> i stället.`,
+          );
+        } finally {
+          if (submit) submit.disabled = false;
+        }
+        return;
+      }
+
+      // ---- Default: hand the message to the visitor's mail app
+      const to = form.dataset.to ?? "";
+      const mailto =
+        `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmail =
+        `${form.dataset.gmail}&to=${encodeURIComponent(to)}` +
+        `&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      setStatus(
+        `Ditt e-postprogram öppnas med förfrågan ifylld – skicka mejlet så återkommer vi. ` +
+          `Händer inget? <a href="${gmail}" target="_blank" rel="noopener">Öppna i Gmail</a> ` +
+          `eller <a href="${form.dataset.phone}">ring oss</a>.`,
+      );
+
+      let handedOff = false;
+      const markHandedOff = () => {
+        handedOff = true;
+      };
+      window.addEventListener("blur", markHandedOff, { once: true });
+      window.addEventListener("pagehide", markHandedOff, { once: true });
+      document.addEventListener("visibilitychange", markHandedOff, { once: true });
+
+      window.location.href = mailto;
+
+      window.setTimeout(() => {
+        window.removeEventListener("blur", markHandedOff);
+        window.removeEventListener("pagehide", markHandedOff);
+        document.removeEventListener("visibilitychange", markHandedOff);
+        if (handedOff || document.hidden) return;
+
+        // No mail app took the mailto: — open Gmail's compose window instead
+        const tab = window.open(gmail, "_blank", "noopener");
+        if (!tab) window.location.href = gmail;
+      }, HANDOFF_MS);
+    });
+  }
+</script>

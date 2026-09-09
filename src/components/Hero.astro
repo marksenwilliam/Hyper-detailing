@@ -4,11 +4,13 @@
 // the header sits in the page flow, so nothing overlaps the stage.
 import ImagePlaceholder from "./ImagePlaceholder.astro";
 import Stars from "./Stars.astro";
-import { googleReviewsUrl } from "../data/reviews";
+import { googleReviewsUrl, googleRating, googleReviewCount } from "../data/reviews";
 import { site } from "../data/site";
 
 // Links straight to the Google profile once there is a URL to link to;
 // until then the badge renders as plain text rather than a dead anchor.
+// (Marknadsföringslagen: a rating claim needs to be verifiable — the link is
+// what lets a visitor check it.)
 const RatingTag = googleReviewsUrl ? "a" : "div";
 
 // Decorative sparks that float up inside the primary CTA. Ported from the
@@ -42,7 +44,7 @@ const ctaPoints = [
       class="hero-img"
       src="/assets/photos/hero-fallback-desktop.webp"
       mobileSrc="/assets/photos/hero-fallback-mobile.webp"
-      alt="Nytvättad vit BMW i Hyper Detailings tvätthall i Umeå"
+      alt="Nytvättad BMW 5-serie i Hyper Detailings tvätthall i Umeå"
       width={2560}
       height={1440}
       label="Hero — fallbackbild"
@@ -101,9 +103,9 @@ const ctaPoints = [
             width="20"
             height="20"
           />
-          <span class="hero-rating-score">5,0</span>
+          <span class="hero-rating-score">{googleRating}</span>
           <span class="hero-rating-stars"><Stars /></span>
-          <span class="hero-rating-label">Google-recensioner</span>
+          <span class="hero-rating-label">{googleReviewCount} recensioner på Google</span>
         </RatingTag>
 
         <div class="hero-text">
@@ -160,7 +162,7 @@ const ctaPoints = [
          edge. -->
     <a
       class="hero-map"
-      href="https://maps.app.goo.gl/4qqXahKoziN2y8rDA"
+      href={site.mapsUrl}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -190,6 +192,25 @@ const ctaPoints = [
         <path d="M7 17L17 7M9 7h8v8"></path>
       </svg>
     </a>
+
+    <!-- Pause/play for the background video (WCAG 2.2.2: moving content that
+         starts automatically and runs longer than five seconds needs a way to
+         stop it). Bottom-right, opposite the map card. Hidden for
+         reduced-motion users, who never get the video in the first place. -->
+    <button
+      class="hero-pause"
+      type="button"
+      aria-pressed="false"
+      aria-label="Pausa bakgrundsvideon"
+    >
+      <svg class="hero-pause-icon hero-pause-icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+        <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+      </svg>
+      <svg class="hero-pause-icon hero-pause-icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"></path>
+      </svg>
+    </button>
   </div>
 
 </section>
@@ -665,6 +686,60 @@ const ctaPoints = [
     }
   }
 
+  /* ---------- Video pause toggle ---------- */
+  /* Same glass family as the map card, mirrored to the bottom-right corner. */
+  .hero-pause {
+    position: absolute;
+    right: 1.5em;
+    bottom: 1.5em;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75em; /* 44px tap target */
+    height: 2.75em;
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    color: var(--color-text-white);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .hero-pause:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-pause-icon {
+    width: 1.125em;
+    height: 1.125em;
+  }
+
+  .hero-pause-icon--play,
+  .hero-pause[aria-pressed="true"] .hero-pause-icon--pause {
+    display: none;
+  }
+
+  .hero-pause[aria-pressed="true"] .hero-pause-icon--play {
+    display: block;
+  }
+
+  @media screen and (max-width: 767px) {
+    .hero-pause {
+      right: 1em;
+      bottom: 1em;
+    }
+  }
+
+  /* No video for reduced-motion users, so nothing to pause */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-pause {
+      display: none;
+    }
+  }
+
   /* ---------- Responsive ---------- */
 
   /* From tablet up the CTA is the stage's only control, so it carries a
@@ -769,4 +844,25 @@ const ctaPoints = [
       video.load();
     });
   })();
+</script>
+
+<script>
+  // Pause/play toggle for the background video. Both cuts get the same
+  // command — only the one matching the breakpoint is rendered, and pausing
+  // the hidden one is harmless.
+  const toggle = document.querySelector<HTMLButtonElement>(".hero-pause");
+  const videos = Array.from(document.querySelectorAll<HTMLVideoElement>("video.hero-video"));
+
+  toggle?.addEventListener("click", () => {
+    const pausing = toggle.getAttribute("aria-pressed") !== "true";
+    toggle.setAttribute("aria-pressed", String(pausing));
+    toggle.setAttribute(
+      "aria-label",
+      pausing ? "Spela upp bakgrundsvideon" : "Pausa bakgrundsvideon",
+    );
+    videos.forEach((video) => {
+      if (pausing) video.pause();
+      else void video.play().catch(() => {});
+    });
+  });
 </script>

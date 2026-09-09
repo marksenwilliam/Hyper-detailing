@@ -1,52 +1,71 @@
 # Site Map — Hyper Detailing Umeå
 
-Single-page site (`src/pages/index.astro`), converted from the "Darken" Figma
-template (`usBV1zSLtqoxIMKvuXX33f`). For the original template's design specs see
-[PROJECT_BRIEF.md](PROJECT_BRIEF.md) (historical reference).
+Astro site: one landing page plus two legal pages. Converted from the "Darken"
+Figma template (`usBV1zSLtqoxIMKvuXX33f`); for the original template's design
+specs see [PROJECT_BRIEF.md](PROJECT_BRIEF.md) (historical reference).
 
 ## Page: Home (`/`)
 
-| Section | Component | Anchor | Background | Notes |
-|---|---|---|---|---|
-| Navbar | `Navbar.astro` | — | translucent | Absolutely positioned over the hero; hamburger ≤991px; "Boka tid" → `#kontakt` |
-| Hero | `Hero.astro` | — | `#090401` | Full-viewport (100svh), full-bleed image with overlay: uppercase two-line h1, two outlined pill CTAs, bottom row of 3 service highlights (icon tile + h2 + blurb), dark scrim for legibility. Desktop/tablet: `Car_in_setting_with_logo_202608060903.jpeg` (real photo, 2752×1536); mobile ≤767px: `hero-mobile.webp` (same scene, 9:16 crop, 1200×2150) |
-| Showcase | `Showcase.astro` | — | `#090401` | Split card: 16:9 image left (`3D_car_graphic_for_website_202608060743.jpeg`), copy right (h2 "Rekond i toppklass", sub, 2 bullets, orange pill CTA → `#tjanster`), dashed divider between. Stacks to one column ≤991px (divider goes horizontal) |
-| Ticker | `Marquee.astro` | `#galleri` | `#090401` | Auto-scrolling filmstrip of the 6 real customer photos (from `src/data/gallery.ts`), 4:3 frames with a 2px seam, edge fades. Drag/swipe to scrub on mouse + touch, press-and-hold pauses, momentum on release. Carries the `#galleri` anchor |
-| Services | `Features.astro` | `#tjanster` | `#090401` | Wide card (lackkorrigering & keramiskt lackskydd, checklist + 3D visual) + two half cards (utvändig/invändig rekond) |
-| FAQ | `Faq.astro` | `#faq` | `#0a0502` | Accordion, item 2 open by default |
-| CTA | `Cta.astro` | — | `#0a0502` | 1128×432 card with light rays + arc glow; "Boka tid" → `#kontakt`, phone link |
-| Footer / contact | `Footer.astro` | `#kontakt` | `#0a0502` | Contact + opening hours (from `src/data/site.ts`), service/quick links, socials |
+| Section | Component | Anchor | Notes |
+|---|---|---|---|
+| Navbar | `Navbar.astro` | — | Fixed floating pill; hamburger ≤991px; links are root-relative (`/#tjanster`) so they also work from the legal pages; "Boka tid" → `/#kontakt` |
+| Hero | `Hero.astro` | `#top` | Full-viewport video stage (desktop + portrait cuts, photo fallback). Google rating badge links to the Google profile; animated "Boka nu" CTA → `#kontakt`; map card (bottom-left) → Google Maps; pause/play button (bottom-right) for the video |
+| Reviews + cars | `Spotlight.astro` | `#galleri` | Two rotators: the ten written five-star reviews from the Google Business profile, verbatim (4 s), and real customer photos from `src/data/gallery.ts` (2 s). Prev/next, dots, pause/play; any manual control stops auto-rotation. Rating row links to Google |
+| Services | `Features.astro` | `#tjanster` | Wide card (utvändig rekond, cross-fading 3D visuals) + two half cards (keramiskt vaxskydd, invändig rekond); stacked static cards ≤767px. Copy from `src/data/services.ts` |
+| Prices | `Pricing.astro` | `#priser` | One card per package from `src/data/packages.ts`; note states prices incl. VAT and how "från"-prices work |
+| FAQ | `Faq.astro` | `#faq` | Accordion, item 2 open by default |
+| CTA | `Cta.astro` | — | Artwork card with "Boka tid" → `#kontakt` and "Ring …" → `tel:` |
+| Contact & booking | `Contact.astro` | `#kontakt` | Direct channels (call, SMS, e-mail, address → Google Maps, "Vägbeskrivning (GPS)" → directions, hours) + booking request form (mailto with Gmail fallback; optional `data-endpoint` for a form service) |
+| Footer | `Footer.astro` | — | Contact + hours, service/quick links, socials (only those with a URL), legal identity (org.nr / VAT when set), links to `/integritetspolicy` and `/villkor` |
 
-Not currently rendered (kept in `src/components/`): `SocialProof.astro` (stats
-strip), `Testimonials.astro` (reviews), `Gallery.astro` (the 3-col results grid —
-its photos now live in the ticker, and it still reads the same
-`src/data/gallery.ts`, so it can be dropped back into `index.astro` any time).
+Site-wide (BaseLayout): every `tel:` / `sms:` / `mailto:` link is watched. If no
+app takes the click within 0.9 s (desktop without a dialer or mail client), the
+number is copied and a toast says so, or Gmail's compose window opens with the
+same subject/body.
+
+## Page: `/integritetspolicy`
+
+GDPR art. 13 privacy notice — controller, data categories and purposes, legal
+bases, retention, recipients (incl. Google/Gmail transfer basis), no cookies,
+rights, IMY complaint route. Shell: `LegalPage.astro`.
+
+## Page: `/villkor`
+
+Consumer terms — booking, prices incl. VAT, cancellation, 14-day ångerrätt for
+distance bookings, drop-off/pick-up, workmanship, damage, reklamation
+(konsumenttjänstlagen), ARN, personal data. Shell: `LegalPage.astro`.
+
+## Page: `/404`
+
+Custom not-found page (`src/pages/404.astro`) with links back to `/#top` and
+`/#kontakt`. Static hosts serve `dist/404.html` automatically.
+
+## Not rendered (kept in `src/components/`)
+
+`Gallery.astro` (3-col results grid, reads `src/data/gallery.ts`),
+`Showcase.astro`, `Testimonials.astro` and `SocialProof.astro`. The last two
+hold invented placeholder content.
 
 ## Shared pieces
 
 | Piece | Where | Description |
 |---|---|---|
-| `ImagePlaceholder.astro` | Hero, Showcase, Marquee, Features | Renders a dashed placeholder box until the file exists under `public/`; supports `mobileSrc`, `loading` and `fetchpriority` |
-| `src/data/site.ts` | Navbar, Footer, Cta, BaseLayout | Central client config: name, contact, hours, socials (placeholders until launch) |
-| `src/data/gallery.ts` | Marquee, Gallery | The 6 real customer photos, shared so the ticker and the grid never drift apart |
-| `.section-label` / `.section-heading` / `.btn` | global.css | Eyebrow pill, heading with orange accent span, primary/ghost buttons |
-| Scroll animations | BaseLayout | GSAP + ScrollTrigger via `data-animate="fade-up|stagger"`, respects `prefers-reduced-motion` |
+| `ImagePlaceholder.astro` | Hero, Spotlight, Features | Renders a dashed placeholder box until the file exists under `public/`; supports `mobileSrc`, `loading` and `fetchpriority` |
+| `src/data/site.ts` | Navbar, Footer, Cta, Contact, Hero, BaseLayout, legal pages | Central client config: name, legal identity, contact, hours, socials, map link |
+| `src/data/reviews.ts` | Hero, Spotlight | Verbatim reviews + Google profile URL, rating and review count |
+| `src/data/gallery.ts` | Spotlight, Gallery | Real customer photos (plates blurred) |
+| `src/data/services.ts` / `packages.ts` | Features / Pricing, Contact (service select) | Service categories / price list |
+| `.section-label` / `.section-heading` / `.btn` | global.css | Eyebrow, heading with orange accent span, primary/ghost buttons |
+| Scroll animations | BaseLayout | GSAP + ScrollTrigger (bundled from npm) via `data-animate="fade-up|stagger"`, respects `prefers-reduced-motion` |
+| Fonts | BaseLayout | Plus Jakarta Sans 400–700, self-hosted via `@fontsource` |
+| SEO | BaseLayout, `astro.config.mjs`, `public/robots.txt` | Canonical, Open Graph (1200×630 `og-image.jpg`), `AutomotiveBusiness` JSON-LD with geo/hours/map, sitemap |
 
 ## Layout system
 
-- **Page width cap**: `BaseLayout` wraps the navbar, `<main>` and the footer in a
-  single `.page-shell` capped at `--size-page-max` (**1280px**) and centred, so
-  every section — hero and footer included — is exactly the same width and their
-  backgrounds line up instead of bleeding to the viewport edge. Above 1280px the
-  body shows a deeper `#040200` gutter and the shell picks up hairline rails.
-  (Modelled on the marksenmedia.se layout.)
-- `--size-container-max` is kept equal to `--size-page-max`, so the 1440px design
-  scales down proportionally into the cap (root font 14.22px, content column
-  1002.7px = 1128 × 1280/1440) instead of just losing horizontal room.
-
+- **Page width cap**: `BaseLayout` wraps `<main>` and the footer in a single
+  `.page-shell` capped at `--size-page-max` (1440px) and centred; every section
+  is a rounded card on the page ground, separated by `--page-gap`.
 - Fluid em scaling: root font-size follows the viewport (`--size-font`), design
   width 1440px, breakpoints at 991 / 767 / 479px (see `global.css`).
-- Backgrounds span the full viewport; content is capped at `--size-container`
-  with `--container-padding` inset.
-- Decorative arcs/rays/dot fields live in `z-index: -1` layers clipped by
-  `overflow: hidden` on their section.
+- Decorative layers live inside their section and are clipped by the section
+  card's `overflow: hidden`.

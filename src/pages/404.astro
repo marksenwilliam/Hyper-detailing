@@ -1,0 +1,57 @@
+---
+// Custom 404. Static hosts (Vercel, Netlify, Cloudflare Pages, most nginx
+// setups) serve /404.html for unknown paths automatically.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout title={`Sidan finns inte – ${site.fullName}`} description="Sidan du letar efter finns inte. Gå till startsidan eller kontakta oss.">
+  <section class="not-found">
+    <div class="container not-found-inner">
+      <span class="section-label">404</span>
+      <h1 class="section-heading">
+        Sidan finns <span class="accent">inte</span>
+      </h1>
+      <p class="not-found-sub">
+        Länken kan vara felskriven eller så har sidan flyttat. Startsidan har allt du
+        behöver – tjänster, priser och bokning.
+      </p>
+      <div class="not-found-actions">
+        <a class="btn btn-primary" href="/#top">Till startsidan</a>
+        <a class="btn btn-ghost" href="/#kontakt">Boka tid</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--page-gutter) * 2);
+    min-height: calc(100svh - var(--page-gutter) * 2);
+    padding: calc(var(--header-offset) + var(--header-height) + 2em) var(--cell-padding)
+      var(--cell-padding);
+  }
+
+  .not-found-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25em;
+    max-width: 36em;
+  }
+
+  .not-found-sub {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-text-body);
+  }
+
+  .not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75em;
+    margin-top: 0.5em;
+  }
+</style>

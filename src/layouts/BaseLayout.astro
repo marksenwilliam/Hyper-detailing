@@ -1,13 +1,23 @@
 ---
 import "../styles/global.css";
+// Self-hosted web font (was Google Fonts). Loading fonts from fonts.googleapis.com
+// sends every visitor's IP address to Google before they can object — the
+// reason German courts and IMY guidance treat it as a GDPR problem. Serving the
+// files from our own origin removes the third-party request entirely, and lets
+// the privacy policy truthfully say "no data leaves the site".
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import { site } from "../data/site";
+import { site, activeSocials } from "../data/site";
 
-// Agentation: DEV-ONLY visual annotation widget for precise, click-to-point edits.
-// Gated behind import.meta.env.DEV below, so it is stripped from production builds
-// (no React ships to prod). Same pattern as the marksenmedia repos.
-import { Agentation } from "agentation";
+// Dev-only annotation widget (see DevTools.astro). The conditional dynamic
+// import is what keeps it — and React — out of the production bundle.
+const DevTools = import.meta.env.DEV
+  ? (await import("../components/DevTools.astro")).default
+  : null;
 
 interface Props {
   title?: string;
@@ -21,22 +31,21 @@ const {
 
 // Absolute URLs for canonical/OG/structured data (Astro.site is set in astro.config.mjs)
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
-// Points at the hero photo — the previous /generated-graphics/hyper-3d/og-image.jpg
-// does not exist, so every share rendered without a preview image.
-const ogImageUrl = new URL(
-  "/assets/photos/Car_in_setting_with_logo_202608060903.jpeg",
-  Astro.site,
-).href;
+// 1200×630 crop of the hero photo, generated from hero-fallback-desktop.webp —
+// the size every share card (Facebook, LinkedIn, iMessage, Slack …) expects.
+const ogImageUrl = new URL("/assets/photos/og-image.jpg", Astro.site).href;
+const ogImageAlt = "Nytvättad BMW 5-serie i Hyper Detailings tvätthall i Umeå";
 
 const schema = {
   "@context": "https://schema.org",
   // "AutoDetailing" does not exist on schema.org — AutomotiveBusiness is the
   // closest valid LocalBusiness subtype for a detailing shop.
   "@type": "AutomotiveBusiness",
+  "@id": new URL("/#business", Astro.site).href,
   name: site.fullName,
   description: site.description,
-  url: canonicalUrl,
-  telephone: site.phone,
+  url: new URL("/", Astro.site).href,
+  telephone: site.phoneHref.replace("tel:", ""),
   email: site.email,
   address: {
     "@type": "PostalAddress",
@@ -45,6 +54,12 @@ const schema = {
     addressLocality: site.city,
     addressCountry: "SE",
   },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: site.geo.latitude,
+    longitude: site.geo.longitude,
+  },
+  hasMap: site.mapsUrl,
   openingHoursSpecification: site.hoursSpec.map((spec) => ({
     "@type": "OpeningHoursSpecification",
     dayOfWeek: spec.dayOfWeek,
@@ -52,6 +67,9 @@ const schema = {
     closes: spec.closes,
   })),
   image: ogImageUrl,
+  priceRange: "699–4995 kr",
+  currenciesAccepted: "SEK",
+  ...(activeSocials.length > 0 && { sameAs: activeSocials.map((s) => s.href) }),
 };
 ---
 
@@ -67,23 +85,22 @@ const schema = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.fullName} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="sv_SE" />
     <meta name="twitter:card" content="summary_large_image" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@500&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
@@ -100,26 +117,19 @@ const schema = {
       <Footer />
     </div>
 
-    <script
-      is:inline
-      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
-      integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"></script>
-    <script
-      is:inline
-      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
-      integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"></script>
-    <script is:inline>
-      (() => {
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduced || typeof gsap === "undefined") return;
+    {/* Scroll-reveal animations. GSAP is bundled from node_modules (it used to
+        be a CDN script tag), so no third-party request leaves the page — see
+        the font note at the top of this file. */}
+    <script>
+      import { gsap } from "gsap";
+      import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reduced) {
         gsap.registerPlugin(ScrollTrigger);
 
-        gsap.utils.toArray("[data-animate='fade-up']").forEach((el) => {
+        gsap.utils.toArray<Element>("[data-animate='fade-up']").forEach((el) => {
           gsap.from(el, {
             y: 40,
             opacity: 0,
@@ -129,7 +139,7 @@ const schema = {
           });
         });
 
-        gsap.utils.toArray("[data-animate='stagger']").forEach((group) => {
+        gsap.utils.toArray<Element>("[data-animate='stagger']").forEach((group) => {
           gsap.from(group.children, {
             y: 30,
             opacity: 0,
@@ -139,14 +149,117 @@ const schema = {
             scrollTrigger: { trigger: group, start: "top 85%", once: true },
           });
         });
-      })();
+      }
     </script>
 
-    {/* Dev-only: Agentation visual annotation widget (stripped from prod builds).
-        `endpoint` connects it to the local Agent Sync server on :4747, so annotations
-        flow through the agentation MCP straight to the AI agent (no copy/paste).
-        Only a serializable string prop is passed — client:only islands can't take
-        function props like onSessionCreated. */}
-    {import.meta.env.DEV && <Agentation client:only="react" endpoint="http://localhost:4747" />}
+    {/* Site-wide fallbacks for tel:, sms: and mailto: links. A phone hands the
+        click to the dialer, SMS or mail app. A desktop with no such app
+        registered swallows the click silently, so the button looks dead. The
+        script watches for the hand-off (the page loses focus when another app
+        opens) and, when it never comes, does the next best thing: Gmail's
+        compose window for mail, and copying the number for phone/SMS. */}
+    <div class="site-toast" id="site-toast" role="status" aria-live="polite" hidden></div>
+    <script>
+      import { site } from "../data/site";
+
+      // Long enough for a slow-launching app, short enough that nobody sits
+      // and wonders — and inside the browser's transient user activation so
+      // window.open is not treated as a popup.
+      const HANDOFF_MS = 900;
+
+      const toastEl = document.getElementById("site-toast");
+      let toastTimer: number | undefined;
+      const toast = (message: string) => {
+        if (!toastEl) return;
+        toastEl.textContent = message;
+        toastEl.hidden = false;
+        // Next frame so the transition runs from the hidden state
+        requestAnimationFrame(() => toastEl.classList.add("is-visible"));
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          toastEl.classList.remove("is-visible");
+          window.setTimeout(() => {
+            toastEl.hidden = true;
+          }, 300);
+        }, 4500);
+      };
+
+      // Runs `fallback` only if nothing else took the click within HANDOFF_MS
+      const watchHandoff = (fallback: () => void) => {
+        let handedOff = false;
+        const mark = () => {
+          handedOff = true;
+        };
+        window.addEventListener("blur", mark, { once: true });
+        window.addEventListener("pagehide", mark, { once: true });
+        document.addEventListener("visibilitychange", mark, { once: true });
+
+        window.setTimeout(() => {
+          window.removeEventListener("blur", mark);
+          window.removeEventListener("pagehide", mark);
+          document.removeEventListener("visibilitychange", mark);
+          if (handedOff || document.hidden) return;
+          fallback();
+        }, HANDOFF_MS);
+      };
+
+      // Human-readable number for the toast: the site's own formatting when
+      // it is the shop's number, otherwise whatever the href holds.
+      const displayNumber = (href: string) => {
+        const raw = href.replace(/^(tel|sms):/i, "").split("?")[0];
+        return raw === site.phoneHref.replace("tel:", "") ? site.phone : raw;
+      };
+
+      const copyNumber = async (number: string) => {
+        try {
+          await navigator.clipboard.writeText(number);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+
+      // Delegated, so links added later (the form's status message) count too
+      document.addEventListener("click", (event) => {
+        const link = (event.target as Element | null)?.closest<HTMLAnchorElement>(
+          'a[href^="mailto:"], a[href^="tel:"], a[href^="sms:"]',
+        );
+        if (!link) return;
+        const href = link.getAttribute("href") ?? "";
+
+        if (href.startsWith("mailto:")) {
+          // mailto:addr?subject=…&body=… → Gmail compose with the same fields
+          const [to, query = ""] = href.slice("mailto:".length).split("?");
+          const params = new URLSearchParams(query);
+          let gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}`;
+          const subject = params.get("subject");
+          const body = params.get("body");
+          if (subject) gmail += `&su=${encodeURIComponent(subject)}`;
+          if (body) gmail += `&body=${encodeURIComponent(body)}`;
+
+          watchHandoff(() => {
+            const tab = window.open(gmail, "_blank", "noopener");
+            if (!tab) window.location.href = gmail; // popup blocked
+          });
+          return;
+        }
+
+        // tel: / sms: — no dialer on this device: put the number in the
+        // clipboard and say so, so the visitor can call from their phone.
+        const number = displayNumber(href);
+        const isSms = href.startsWith("sms:");
+        watchHandoff(async () => {
+          const copied = await copyNumber(number);
+          toast(
+            copied
+              ? `${number} är kopierat – ${isSms ? "sms:a" : "ring"} oss från din telefon.`
+              : `${isSms ? "Sms:a" : "Ring"} oss på ${number}.`,
+          );
+        });
+      });
+    </script>
+
+    {/* Dev-only annotation widget; null in production builds */}
+    {DevTools && <DevTools />}
   </body>
 </html>

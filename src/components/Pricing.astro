@@ -48,10 +48,15 @@ import { packages } from "../data/packages";
       }
     </div>
 
+    <!-- Prisinformationslagen (2004:347): prices to consumers must be the total
+         price including VAT, and a "från"-price must say what decides the
+         final sum. -->
     <p class="pricing-note">
-      Priserna gäller normalstor personbil – större bilar och kraftigt nedsmutsade
-      exemplar kan kosta mer. Kontakta oss med bilmodell och önskad behandling så får
-      du en kostnadsfri offert, helt utan förpliktelser.
+      <strong>Alla priser är inklusive moms.</strong> Priserna gäller normalstor
+      personbil – större bilar och kraftigt nedsmutsade exemplar kan kosta mer, och
+      du får alltid det exakta priset bekräftat innan vi börjar. Kontakta oss med
+      bilmodell och önskad behandling så får du en kostnadsfri offert, helt utan
+      förpliktelser.
     </p>
   </div>
 </section>
@@ -200,6 +205,11 @@ import { packages } from "../data/packages";
     font-size: var(--text-sm);
     line-height: 1.5;
     color: var(--color-text-body);
+  }
+
+  .pricing-note strong {
+    font-weight: 600;
+    color: var(--color-text-white);
   }
 
   /* ---------- Responsive ---------- */
