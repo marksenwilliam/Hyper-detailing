@@ -104,11 +104,14 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
       </div>
 
       <!-- ---------- Booking request form ---------- -->
+      <!-- No `action` on purpose. The script below handles every submit, and
+           an action of mailto: (or any non-https URL) makes Chrome flag the
+           form as "not secure" and switch off autofill. Without an action the
+           form targets the page itself, which is https in production. -->
       <form
         class="contact-form"
         id="booking-form"
         method="post"
-        action={`mailto:${site.email}`}
         novalidate
         data-animate="fade-up"
         data-to={site.email}
@@ -164,6 +167,14 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
         </div>
 
         <p class="form-status" id="bf-status" role="status" aria-live="polite" hidden></p>
+
+        <noscript>
+          <p class="form-status">
+            Formuläret behöver JavaScript. Mejla oss i stället på
+            <a href={`mailto:${site.email}`}>{site.email}</a> eller ring
+            <a href={site.phoneHref}>{site.phone}</a>.
+          </p>
+        </noscript>
       </form>
     </div>
   </div>
