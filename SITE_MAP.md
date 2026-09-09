@@ -15,7 +15,14 @@ specs see [PROJECT_BRIEF.md](PROJECT_BRIEF.md) (historical reference).
 | Prices | `Pricing.astro` | `#priser` | One card per package from `src/data/packages.ts`; note states prices incl. VAT and how "från"-prices work |
 | FAQ | `Faq.astro` | `#faq` | Accordion, item 2 open by default |
 | CTA | `Cta.astro` | — | Artwork card with "Boka tid" → `#kontakt` and "Ring …" → `tel:` |
-| Contact & booking | `Contact.astro` | `#kontakt` | Direct channels (call, SMS, e-mail, address → Google Maps, "Vägbeskrivning (GPS)" → directions, hours) + booking request form (mailto with Gmail fallback; optional `data-endpoint` for a form service) |
+| Contact & booking | `Contact.astro` | `#kontakt` | Direct channels (call, SMS, e-mail, address → Google Maps, "Vägbeskrivning (GPS)" → directions, hours) + booking request form (förnamn, efternamn, telefon, e-post, reg.nr, meddelande) → `POST /api/lead` → GoHighLevel contact + note |
+
+## Route: `POST /api/lead`
+
+`src/pages/api/lead.ts`, the site's only server-rendered route (Vercel
+function). Validates the booking form, upserts the contact in the GoHighLevel
+sub-account (custom field `reg_nr`, tags, source) and adds the message as a
+note. Secrets via `astro:env/server` (`GHL_PIT`, `GHL_LOCATION_ID`). See README.
 | Footer | `Footer.astro` | — | Contact + hours, service/quick links, socials (only those with a URL), legal identity (org.nr / VAT when set), links to `/integritetspolicy` and `/villkor` |
 
 Site-wide (BaseLayout): every `tel:` / `sms:` / `mailto:` link is watched. If no

@@ -1,7 +1,8 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 
 // `astro dev` vs `astro build`/`astro preview`. The React renderer only exists
 // for the dev-only Agentation widget (src/components/DevTools.astro); leaving
@@ -14,6 +15,22 @@ export default defineConfig({
   // Used for canonical URLs, og:url, absolute og:image and the sitemap.
   site: 'https://hyperdetailingumea.se',
   server: { port: 4322 },
+
+  // Every page stays static (prerendered). The adapter only exists for the
+  // one on-demand route, src/pages/api/lead.ts (`prerender = false`), which
+  // forwards the booking form to GoHighLevel and must keep the API token on
+  // the server. Deployed as a Vercel function.
+  adapter: vercel(),
+
+  // Secrets for that route. Server-only, never bundled; read from the
+  // environment at runtime (Vercel project settings, or .env locally).
+  env: {
+    schema: {
+      GHL_PIT: envField.string({ context: 'server', access: 'secret' }),
+      GHL_LOCATION_ID: envField.string({ context: 'server', access: 'secret' }),
+    },
+  },
+
   integrations: [
     // React renderer — dev only, see above. Nothing on the site itself uses
     // React, so production builds carry neither React nor the renderer.

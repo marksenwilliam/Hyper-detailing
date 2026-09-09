@@ -2,23 +2,16 @@
 // Contact & booking: every "Boka tid" button on the page lands here.
 //
 // Left column: the direct channels (call, SMS, e-mail, map, hours). Right
-// column: a booking request form. The site is static with no backend, so the
-// form composes an e-mail in the visitor's own mail app (mailto:) with every
-// field filled in — and falls back to Gmail's compose window when no mail app
-// takes the hand-off (same trick as the footer's "Mejla oss" button).
+// column: the booking request form. On submit the script POSTs the fields as
+// JSON to /api/lead (src/pages/api/lead.ts), a server route that creates the
+// contact in the client's GoHighLevel sub-account — the API token stays on
+// the server. Nothing is sent from the browser to any third party.
 //
-// Upgrade path: set data-endpoint on the <form> to an HTTPS form service URL
-// (Web3Forms, Formspree, a Netlify/Vercel function …) and the script below
-// POSTs the fields as JSON instead of opening the mail app. Nothing else
-// changes. See README.md → "Bokningsformulär".
-//
-// GDPR: no field is stored or sent anywhere by this site — the data only ever
-// travels inside the visitor's own e-mail. The note under the form says so and
-// links the privacy policy (art. 13 information duty).
+// GDPR: the privacy policy (linked under the form) names the CRM as a
+// recipient and explains the transfer basis (art. 13 information duty).
 import { site, fullAddress } from "../data/site";
 
-const subjectPrefix = "Bokningsförfrågan via hyperdetailingumea.se";
-const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
+const endpoint = "/api/lead";
 ---
 
 <section class="contact" id="kontakt" aria-labelledby="contact-title">
@@ -104,52 +97,70 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
       </div>
 
       <!-- ---------- Booking request form ---------- -->
-      <!-- No `action` on purpose. The script below handles every submit, and
-           an action of mailto: (or any non-https URL) makes Chrome flag the
-           form as "not secure" and switch off autofill. Without an action the
-           form targets the page itself, which is https in production. -->
+      <!-- The action is the same-origin API route, so the form is https in
+           production and Chrome's "form is not secure" warning never fires.
+           The script intercepts the submit; without JavaScript the browser
+           POSTs the same fields to the route directly. -->
       <form
         class="contact-form"
         id="booking-form"
         method="post"
+        action={endpoint}
         novalidate
         data-animate="fade-up"
-        data-to={site.email}
+        data-endpoint={endpoint}
         data-phone={site.phoneHref}
-        data-subject={subjectPrefix}
-        data-gmail={gmailCompose}
+        data-email={site.email}
       >
         <h3 class="contact-card-title">Skicka bokningsförfrågan</h3>
 
         <div class="form-grid">
           <div class="field">
             <label for="bf-first-name">Förnamn <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-first-name" name="Förnamn" type="text" autocomplete="given-name" required />
+            <input id="bf-first-name" name="firstName" type="text" autocomplete="given-name" required />
           </div>
 
           <div class="field">
             <label for="bf-last-name">Efternamn <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-last-name" name="Efternamn" type="text" autocomplete="family-name" required />
+            <input id="bf-last-name" name="lastName" type="text" autocomplete="family-name" required />
           </div>
 
           <div class="field">
             <label for="bf-phone">Telefon <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-phone" name="Telefon" type="tel" autocomplete="tel" inputmode="tel" required />
+            <input id="bf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
           </div>
 
           <div class="field">
             <label for="bf-email">E-post <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-email" name="E-post" type="email" autocomplete="email" inputmode="email" required />
+            <input id="bf-email" name="email" type="email" autocomplete="email" inputmode="email" required />
           </div>
 
           <div class="field field--full">
-            <label for="bf-car">Bil (märke och modell) <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-car" name="Bil" type="text" placeholder="T.ex. Volvo XC60" required />
+            <label for="bf-reg-nr">Registreringsnummer <span class="req" aria-hidden="true">*</span></label>
+            <input
+              id="bf-reg-nr"
+              name="regNr"
+              type="text"
+              class="input-reg-nr"
+              placeholder="ABC 123"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="10"
+              required
+            />
           </div>
 
           <div class="field field--full">
             <label for="bf-message">Meddelande</label>
-            <textarea id="bf-message" name="Meddelande" rows="4" placeholder="Berätta gärna vad du vill ha hjälp med, bilens skick och när det passar dig."></textarea>
+            <textarea id="bf-message" name="message" rows="4" placeholder="Berätta gärna vad du vill ha hjälp med, bilens skick och när det passar dig."></textarea>
+          </div>
+
+          <!-- Honeypot: hidden from people, filled by bots. The API drops any
+               submission where it has a value. -->
+          <div class="field field--hp" aria-hidden="true">
+            <label for="bf-website">Webbplats</label>
+            <input id="bf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
           </div>
         </div>
 
@@ -160,8 +171,8 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
         <div class="form-footer">
           <button class="btn btn-primary form-submit" type="submit">Skicka bokningsförfrågan</button>
           <p class="form-note">
-            Formuläret öppnar ditt e-postprogram med uppgifterna ifyllda – inget sparas
-            på webbplatsen. Vi använder uppgifterna bara för att hantera din förfrågan.
+            Uppgifterna skickas krypterat till vårt bokningssystem och används bara för
+            att hantera din förfrågan.
             <a href="/integritetspolicy">Läs vår integritetspolicy</a>.
           </p>
         </div>
@@ -170,8 +181,8 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
 
         <noscript>
           <p class="form-status">
-            Formuläret behöver JavaScript. Mejla oss i stället på
-            <a href={`mailto:${site.email}`}>{site.email}</a> eller ring
+            Formuläret fungerar bäst med JavaScript. Du kan också mejla oss på
+            <a href={`mailto:${site.email}`}>{site.email}</a> eller ringa
             <a href={site.phoneHref}>{site.phone}</a>.
           </p>
         </noscript>
@@ -364,6 +375,18 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
     grid-column: 1 / -1;
   }
 
+  /* Honeypot: out of the layout and the accessibility tree, but not
+     display:none — some bots skip fields that are display:none. */
+  .field--hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .field label {
     font-size: var(--text-sm);
     font-weight: 500;
@@ -394,9 +417,16 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
     min-height: 6em;
   }
 
+  .input-reg-nr {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
   .field input::placeholder,
   .field textarea::placeholder {
     color: rgba(255, 255, 255, 0.35);
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   .field input:hover,
@@ -439,6 +469,11 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
     min-height: 2.75em;
   }
 
+  .form-submit[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
   .form-note {
     font-size: var(--text-xs);
     line-height: 1.5;
@@ -466,6 +501,11 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
     background-color: rgba(254, 74, 0, 0.1);
     border: 1px solid rgba(254, 74, 0, 0.35);
     border-radius: var(--radius-md);
+  }
+
+  .form-status.is-error {
+    background-color: rgba(231, 74, 81, 0.12);
+    border-color: rgba(231, 74, 81, 0.45);
   }
 
   /* ---------- Responsive ---------- */
@@ -509,31 +549,32 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
   const status = document.querySelector<HTMLElement>("#bf-status");
   const error = document.querySelector<HTMLElement>("#bf-error");
 
-  // How long to wait for the mail app before assuming nobody answered the
-  // mailto: — see the note in Footer.astro.
-  const HANDOFF_MS = 900;
-
-  const setStatus = (html: string) => {
+  const setStatus = (html: string, isError = false) => {
     if (!status) return;
     status.innerHTML = html;
+    status.classList.toggle("is-error", isError);
     status.hidden = false;
   };
 
   if (form) {
-    // Every field in source order → "Label: value" lines, empty ones skipped
+    const endpoint = form.dataset.endpoint ?? form.action;
+    const submit = form.querySelector<HTMLButtonElement>("button[type='submit']");
+
+    // Every named field → { name: value }; blanks are skipped
     const collect = () => {
-      const lines: string[] = [];
       const data: Record<string, string> = {};
-      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-        "input[name], textarea[name]",
-      ).forEach((field) => {
-        const value = field.value.trim();
-        if (!value) return;
-        data[field.name] = value;
-        lines.push(`${field.name}: ${value}`);
-      });
-      return { lines, data };
+      form
+        .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input[name], textarea[name]")
+        .forEach((field) => {
+          const value = field.value.trim();
+          if (value) data[field.name] = value;
+        });
+      return data;
     };
+
+    const fallback = () =>
+      `Det gick inte att skicka just nu. <a href="${form.dataset.phone}">Ring oss</a> ` +
+      `eller <a href="mailto:${form.dataset.email}">mejla ${form.dataset.email}</a> i stället.`;
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -545,75 +586,37 @@ const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
         return;
       }
       if (error) error.hidden = true;
+      if (status) status.hidden = true;
 
-      const { lines, data } = collect();
-      const name = [data["Förnamn"], data["Efternamn"]].filter(Boolean).join(" ");
-      const subject = `${form.dataset.subject} – ${name}`;
-      const body =
-        `Hej!\n\nJag vill boka tid hos Hyper Detailing.\n\n` +
-        lines.join("\n") +
-        `\n\nSkickat från bokningsformuläret på hyperdetailingumea.se`;
+      if (submit) submit.disabled = true;
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(collect()),
+        });
+        const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
 
-      // ---- Optional backend: POST as JSON and stay on the page
-      const endpoint = form.dataset.endpoint;
-      if (endpoint) {
-        const submit = form.querySelector<HTMLButtonElement>("button[type='submit']");
-        if (submit) submit.disabled = true;
-        try {
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({ subject, ...data }),
-          });
-          if (!res.ok) throw new Error(String(res.status));
+        if (res.ok && body.ok) {
           form.reset();
           form.classList.remove("was-validated");
-          setStatus("Tack! Din förfrågan är skickad – vi hör av oss så snart vi kan.");
-        } catch {
-          setStatus(
-            `Det gick inte att skicka just nu. <a href="${form.dataset.phone}">Ring oss</a> ` +
-              `eller <a href="mailto:${form.dataset.to}">mejla ${form.dataset.to}</a> i stället.`,
-          );
-        } finally {
-          if (submit) submit.disabled = false;
+          setStatus("Tack! Din förfrågan är mottagen – vi hör av oss så snart vi kan för att bekräfta tiden.");
+          status?.focus?.();
+        } else if (body.error === "invalid_email" || body.error === "invalid_phone" || body.error === "invalid_reg_nr") {
+          const labels: Record<string, string> = {
+            invalid_email: "e-postadressen",
+            invalid_phone: "telefonnumret",
+            invalid_reg_nr: "registreringsnumret",
+          };
+          setStatus(`Kontrollera ${labels[body.error]} och försök igen.`, true);
+        } else {
+          setStatus(fallback(), true);
         }
-        return;
+      } catch {
+        setStatus(fallback(), true);
+      } finally {
+        if (submit) submit.disabled = false;
       }
-
-      // ---- Default: hand the message to the visitor's mail app
-      const to = form.dataset.to ?? "";
-      const mailto =
-        `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      const gmail =
-        `${form.dataset.gmail}&to=${encodeURIComponent(to)}` +
-        `&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-      setStatus(
-        `Ditt e-postprogram öppnas med förfrågan ifylld – skicka mejlet så återkommer vi. ` +
-          `Händer inget? <a href="${gmail}" target="_blank" rel="noopener">Öppna i Gmail</a> ` +
-          `eller <a href="${form.dataset.phone}">ring oss</a>.`,
-      );
-
-      let handedOff = false;
-      const markHandedOff = () => {
-        handedOff = true;
-      };
-      window.addEventListener("blur", markHandedOff, { once: true });
-      window.addEventListener("pagehide", markHandedOff, { once: true });
-      document.addEventListener("visibilitychange", markHandedOff, { once: true });
-
-      window.location.href = mailto;
-
-      window.setTimeout(() => {
-        window.removeEventListener("blur", markHandedOff);
-        window.removeEventListener("pagehide", markHandedOff);
-        document.removeEventListener("visibilitychange", markHandedOff);
-        if (handedOff || document.hidden) return;
-
-        // No mail app took the mailto: — open Gmail's compose window instead
-        const tab = window.open(gmail, "_blank", "noopener");
-        if (!tab) window.location.href = gmail;
-      }, HANDOFF_MS);
     });
   }
 </script>

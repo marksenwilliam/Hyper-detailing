@@ -28,3 +28,6 @@ tmp/
 
 # raw/unused media moved out of public/ before launch (unblurred plates, AI renders) — keep local only
 source-material/
+
+# Vercel adapter build output + CLI link
+.vercel/

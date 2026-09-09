@@ -17,10 +17,12 @@ customized for the client. All copy is in Swedish.
 
 Verified on the production build (`npm run build` + `astro preview`):
 
-- **No cookies, no local/session storage, no third-party requests.** Every
-  resource (fonts, GSAP, images, video) is served from the site's own origin.
-  A cookie banner is therefore not required (LEK 9 kap. 28 § only demands
-  consent for non-essential storage) and must not be added without reason.
+- **No cookies, no local/session storage, no third-party requests from the
+  browser.** Every resource (fonts, GSAP, images, video) is served from the
+  site's own origin; the booking form posts to the site's own `/api/lead`,
+  which talks to GoHighLevel server-side. A cookie banner is therefore not
+  required (LEK 9 kap. 28 § only demands consent for non-essential storage)
+  and must not be added without reason.
 - **No dev tooling in the build** — the Agentation widget, React and the
   `localhost:4747` probe exist in `npm run dev` only.
 - **axe-core** (WCAG 2.x A/AA + best-practice): zero violations on `/`,
@@ -66,6 +68,9 @@ Also confirm with the client before launch:
   the client must actually do that.
 - The **photo consent** promise in `/integritetspolicy` ("vi publicerar bara
   bilder på din bil om du har godkänt det").
+- The **data processing agreement with HighLevel** — `/integritetspolicy` says
+  the US transfer rests on standard contractual clauses in the DPA with the
+  provider; sign it in the HighLevel account if not already done.
 - **Payment methods** — `/villkor` currently says they are announced at booking.
 - The **person visible in the first second of the desktop hero video** — fine
   if it is the owner or an employee who agreed to appear; otherwise re-cut.
@@ -90,18 +95,39 @@ Also confirm with the client before launch:
 Registration plates in customer photos are blurred (a readable plate is
 personal data). Blur before adding new photos.
 
-## Bokningsformulär
+## Bokningsformulär → GoHighLevel
 
-The site is static with no backend. The form in `Contact.astro` composes an
-e-mail in the visitor's own mail app with every field filled in, and falls back
-to Gmail's compose window if no mail app answers the `mailto:`. Nothing is
-stored on the site.
+The form in `Contact.astro` POSTs JSON to the server route
+[`src/pages/api/lead.ts`](src/pages/api/lead.ts) (`prerender = false`, deployed
+as a Vercel function via `@astrojs/vercel`). The route validates the fields,
+normalises the phone number to E.164 and the reg.nr to `ABC123`, then calls
+the LeadConnector API:
 
-To send through a form service instead, add `data-endpoint="https://…"` to the
-`<form>` (Web3Forms, Formspree, a Netlify/Vercel function). The script then
-POSTs the fields as JSON and shows an inline confirmation. Update the privacy
-policy's "Bokningsformuläret … lagrar ingenting hos oss" paragraph and the
-recipients list if you do.
+1. `POST /contacts/upsert` — creates the contact, or updates an existing one
+   with the same e-mail/phone. Sets `firstName`, `lastName`, `email`, `phone`,
+   `country: SE`, `source: "Webbplats – bokningsformulär"`, tags `webbplats` +
+   `bokningsförfrågan`, and the custom field `{{contact.reg_nr}}`.
+2. `POST /contacts/{id}/notes` — the optional message becomes a note.
+
+Spam: a hidden honeypot field (`website`) makes the route answer OK and drop
+the submission. Every other page on the site is still fully static.
+
+**Environment variables** (server-only, never bundled — see `.env.example`):
+
+| Variable | Value |
+|---|---|
+| `GHL_PIT` | Private Integration Token from the sub-account (Settings → Private Integrations; needs `contacts.write`) |
+| `GHL_LOCATION_ID` | The sub-account's location id |
+
+They are declared in `astro.config.mjs` (`env.schema`, `access: "secret"`) and
+read with `astro:env/server`. Locally: copy `.env.example` to `.env`
+(git-ignored) — and restart `astro dev` after creating it, the dev server does
+not pick up a new `.env` on its own. On Vercel: Project → Settings →
+Environment Variables (already set for this project).
+
+Verified 2026-09-09 against the live sub-account: validation (400s), honeypot,
+upsert with `reg_nr`, note creation, and a real browser submission. All test
+contacts were deleted afterwards.
 
 ## Page structure
 
