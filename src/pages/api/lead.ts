@@ -90,6 +90,16 @@ export const POST: APIRoute = async ({ request }) => {
   const regNr = normalizeRegNr(lead.regNr);
   if (!/^[A-ZÅÄÖ0-9]{2,10}$/.test(regNr)) return json(400, { ok: false, error: "invalid_reg_nr" });
 
+  // Misconfigured deployment: say so in the log rather than throwing an opaque
+  // 500, and let the visitor fall back to phone/e-mail.
+  if (!GHL_PIT || !GHL_LOCATION_ID) {
+    console.error(
+      "[lead] missing environment variables:",
+      [!GHL_PIT && "GHL_PIT", !GHL_LOCATION_ID && "GHL_LOCATION_ID"].filter(Boolean).join(", "),
+    );
+    return json(503, { ok: false, error: "not_configured" });
+  }
+
   const headers = {
     Authorization: `Bearer ${GHL_PIT}`,
     Version: GHL_VERSION,

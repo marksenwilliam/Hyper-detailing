@@ -24,10 +24,16 @@ export default defineConfig({
 
   // Secrets for that route. Server-only, never bundled; read from the
   // environment at runtime (Vercel project settings, or .env locally).
+  //
+  // Deliberately `optional`: a required secret makes the route throw on import
+  // when the variable is missing, which surfaces as an opaque 500. The route
+  // checks for them itself and answers with a readable message plus a log line
+  // naming what is unset — so a misconfigured deployment is obvious instead of
+  // mysterious.
   env: {
     schema: {
-      GHL_PIT: envField.string({ context: 'server', access: 'secret' }),
-      GHL_LOCATION_ID: envField.string({ context: 'server', access: 'secret' }),
+      GHL_PIT: envField.string({ context: 'server', access: 'secret', optional: true }),
+      GHL_LOCATION_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 
