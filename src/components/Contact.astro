@@ -16,16 +16,9 @@
 // travels inside the visitor's own e-mail. The note under the form says so and
 // links the privacy policy (art. 13 information duty).
 import { site, fullAddress } from "../data/site";
-import { packages } from "../data/packages";
 
 const subjectPrefix = "Bokningsförfrågan via hyperdetailingumea.se";
 const gmailCompose = "https://mail.google.com/mail/?view=cm&fs=1";
-
-const serviceOptions = [
-  ...packages.map((pkg) => pkg.name),
-  "Vet inte – vill ha rådgivning",
-  "Annat",
-];
 ---
 
 <section class="contact" id="kontakt" aria-labelledby="contact-title">
@@ -127,8 +120,13 @@ const serviceOptions = [
 
         <div class="form-grid">
           <div class="field">
-            <label for="bf-name">Namn <span class="req" aria-hidden="true">*</span></label>
-            <input id="bf-name" name="Namn" type="text" autocomplete="name" required />
+            <label for="bf-first-name">Förnamn <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-first-name" name="Förnamn" type="text" autocomplete="given-name" required />
+          </div>
+
+          <div class="field">
+            <label for="bf-last-name">Efternamn <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-last-name" name="Efternamn" type="text" autocomplete="family-name" required />
           </div>
 
           <div class="field">
@@ -137,36 +135,23 @@ const serviceOptions = [
           </div>
 
           <div class="field">
-            <label for="bf-email">E-post</label>
-            <input id="bf-email" name="E-post" type="email" autocomplete="email" inputmode="email" />
+            <label for="bf-email">E-post <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-email" name="E-post" type="email" autocomplete="email" inputmode="email" required />
           </div>
 
-          <div class="field">
-            <label for="bf-car">Bil (märke, modell, år)</label>
-            <input id="bf-car" name="Bil" type="text" placeholder="T.ex. Volvo XC60 2019" />
-          </div>
-
-          <div class="field">
-            <label for="bf-service">Tjänst</label>
-            <select id="bf-service" name="Tjänst">
-              <option value="">Välj tjänst</option>
-              {serviceOptions.map((name) => <option value={name}>{name}</option>)}
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="bf-time">Önskad tid</label>
-            <input id="bf-time" name="Önskad tid" type="text" placeholder="T.ex. fredag förmiddag" />
+          <div class="field field--full">
+            <label for="bf-car">Bil (märke och modell) <span class="req" aria-hidden="true">*</span></label>
+            <input id="bf-car" name="Bil" type="text" placeholder="T.ex. Volvo XC60" required />
           </div>
 
           <div class="field field--full">
             <label for="bf-message">Meddelande</label>
-            <textarea id="bf-message" name="Meddelande" rows="4" placeholder="Berätta gärna om bilens skick eller om det är något särskilt du vill ha hjälp med."></textarea>
+            <textarea id="bf-message" name="Meddelande" rows="4" placeholder="Berätta gärna vad du vill ha hjälp med, bilens skick och när det passar dig."></textarea>
           </div>
         </div>
 
         <p class="form-error" id="bf-error" role="alert" hidden>
-          Fyll i namn och telefonnummer så att vi kan nå dig.
+          Fyll i alla fält märkta med * så att vi kan nå dig.
         </p>
 
         <div class="form-footer">
@@ -380,7 +365,6 @@ const serviceOptions = [
   }
 
   .field input,
-  .field select,
   .field textarea {
     width: 100%;
     min-height: 2.75em; /* 44px tap target */
@@ -399,34 +383,17 @@ const serviceOptions = [
     min-height: 6em;
   }
 
-  .field select {
-    appearance: none;
-    -webkit-appearance: none;
-    padding-right: 2.5em;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 0.875em center;
-    background-size: 1em;
-  }
-
-  .field select option {
-    color: #111;
-    background-color: #fff;
-  }
-
   .field input::placeholder,
   .field textarea::placeholder {
     color: rgba(255, 255, 255, 0.35);
   }
 
   .field input:hover,
-  .field select:hover,
   .field textarea:hover {
     border-color: var(--color-border-strong);
   }
 
   .field input:focus-visible,
-  .field select:focus-visible,
   .field textarea:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 0;
@@ -435,8 +402,7 @@ const serviceOptions = [
 
   /* Only flagged after a submit attempt (the .was-validated hook), so an
      untouched form never opens red. */
-  .contact-form.was-validated .field input:invalid,
-  .contact-form.was-validated .field select:invalid {
+  .contact-form.was-validated .field input:invalid {
     border-color: #e74a51;
   }
 
@@ -547,8 +513,8 @@ const serviceOptions = [
     const collect = () => {
       const lines: string[] = [];
       const data: Record<string, string> = {};
-      form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
-        "input[name], select[name], textarea[name]",
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+        "input[name], textarea[name]",
       ).forEach((field) => {
         const value = field.value.trim();
         if (!value) return;
@@ -570,9 +536,8 @@ const serviceOptions = [
       if (error) error.hidden = true;
 
       const { lines, data } = collect();
-      const name = data["Namn"] ?? "";
-      const service = data["Tjänst"] ? ` – ${data["Tjänst"]}` : "";
-      const subject = `${form.dataset.subject}${service} – ${name}`;
+      const name = [data["Förnamn"], data["Efternamn"]].filter(Boolean).join(" ");
+      const subject = `${form.dataset.subject} – ${name}`;
       const body =
         `Hej!\n\nJag vill boka tid hos Hyper Detailing.\n\n` +
         lines.join("\n") +
