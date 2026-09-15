@@ -17,12 +17,21 @@ customized for the client. All copy is in Swedish.
 
 Verified on the production build (`npm run build` + `astro preview`):
 
-- **No cookies, no local/session storage, no third-party requests from the
-  browser.** Every resource (fonts, GSAP, images, video) is served from the
-  site's own origin; the booking form posts to the site's own `/api/lead`,
-  which talks to GoHighLevel server-side. A cookie banner is therefore not
-  required (LEK 9 kap. 28 § only demands consent for non-essential storage)
-  and must not be added without reason.
+- **Every site resource is first-party.** Fonts, GSAP, images and video are
+  served from the site's own origin; the booking form posts to the site's own
+  `/api/lead`, which talks to GoHighLevel server-side. The site set no cookies
+  at all up to 2026-09-09, which is why this section used to say a banner was
+  not required (LEK 9 kap. 28 § only demands consent for non-essential
+  storage).
+- **Cookie consent: Cookiebot** (added 2026-09-15, at the client's request).
+  `uc.js` is the first script in `<head>` in `src/layouts/BaseLayout.astro`,
+  with `data-blockingmode="auto"` so it can block non-essential scripts before
+  they run; `cd.js` renders the auto-generated declaration table in the
+  "Cookies" section of `/integritetspolicy`, alongside a button that reopens
+  the dialog via `Cookiebot.renew()`. It is the only third-party request the
+  browser makes. Cookie categories are configured in the Cookiebot dashboard,
+  not here — check there that the bundled first-party scripts are classified
+  as necessary, or auto-blocking will stop them.
 - **No dev tooling in the build** — the Agentation widget, React and the
   `localhost:4747` probe exist in `npm run dev` only.
 - **axe-core** (WCAG 2.x A/AA + best-practice): zero violations on `/`,
@@ -89,7 +98,7 @@ Also confirm with the client before launch:
 | Reklamation, tilläggsarbete, skadestånd | Konsumenttjänstlagen | `/villkor` §3, §8, §9 |
 | ARN information | Lag (2015:671) om alternativ tvistlösning | `/villkor` §10 |
 | Privacy notice (art. 13) | GDPR | `/integritetspolicy`, linked from the form |
-| No cookies / no third-party requests | LEK 9 kap. 28 §, GDPR | No analytics; fonts and GSAP self-hosted |
+| Consent before non-essential cookies; cookie information | LEK 9 kap. 28 §, GDPR | Cookiebot banner (`BaseLayout.astro`); declaration + renew button in `/integritetspolicy` |
 | Pause control for auto-playing video and carousels | WCAG 2.2.2 (best practice; EN 301 549) | Hero, `#galleri` |
 
 Registration plates in customer photos are blurred (a readable plate is
