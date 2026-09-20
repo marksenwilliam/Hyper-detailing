@@ -35,6 +35,14 @@ export default defineConfig({
     schema: {
       GHL_PIT: envField.string({ context: 'server', access: 'secret', optional: true }),
       GHL_LOCATION_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
+
+      // Cloudflare Turnstile, the bot check on the booking form. The sitekey is
+      // public by design — it identifies the widget in the page. The secret
+      // verifies the token server-side in /api/lead and must never ship to the
+      // browser. Optional for the same reason as the GHL pair above: a
+      // deployment without them still has to serve a working form.
+      PUBLIC_TURNSTILE_SITEKEY: envField.string({ context: 'client', access: 'public', optional: true }),
+      TURNSTILE_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 

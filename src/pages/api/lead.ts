@@ -9,7 +9,7 @@
 // contact with the same e-mail/phone) → if there is a message, attach it as a
 // note on the contact. The reg.nr lands in the custom field {{contact.reg_nr}}.
 import type { APIRoute } from "astro";
-import { GHL_PIT, GHL_LOCATION_ID } from "astro:env/server";
+import { GHL_PIT, GHL_LOCATION_ID, TURNSTILE_SECRET } from "astro:env/server";
 
 export const prerender = false;
 
@@ -49,6 +49,78 @@ const normalizePhone = (raw: string) => {
 // "abc 123" → "ABC123"
 const normalizeRegNr = (raw: string) => raw.toUpperCase().replace(/[\s-]+/g, "");
 
+// Cloudflare Turnstile, the bot check in front of the form. The widget hands
+// the browser a one-time token in `cf-turnstile-response`; Cloudflare's docs
+// are blunt that the token means nothing until the server redeems it here, so
+// this runs before anything else looks at the lead.
+
+const TURNSTILE_VERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+// What the widget declares itself to be for, and where a token may legitimately
+// have been minted. Siteverify echoes both back, and checking them is what
+// stops the sitekey — which is public and visible in the page source — from
+// being dropped onto someone else's page, solved there, and the resulting
+// token replayed at this endpoint.
+const TURNSTILE_ACTION = "booking";
+const ALLOWED_HOSTNAMES = new Set([
+  "hyperdetailing.se",
+  "www.hyperdetailing.se",
+  // Dev only. Cloudflare lets a widget run on localhost, so keeping these in
+  // the production set would hand anyone a way to mint a token on their own
+  // machine off the public sitekey.
+  ...(import.meta.env.PROD ? [] : ["localhost", "127.0.0.1"]),
+]);
+
+// Two deliberate fail-open paths, both logged:
+//
+// 1. TURNSTILE_SECRET unset — an unconfigured deployment would otherwise turn
+//    every booking away, which is the same trap the GHL check below avoids.
+// 2. Cloudflare unreachable — losing a real customer to an outage they can
+//    neither see nor fix is worse than letting a bot through.
+//
+// The honeypot above stays as the second layer in both cases. A token that is
+// present and genuinely rejected is still a hard no.
+const verifyTurnstile = async (token: string, ip: string | null) => {
+  if (!TURNSTILE_SECRET) {
+    console.error("[lead] TURNSTILE_SECRET is unset — the bot check did not run");
+    return true;
+  }
+  if (!token) return false;
+
+  const form = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token });
+  if (ip) form.set("remoteip", ip);
+
+  try {
+    const res = await fetch(TURNSTILE_VERIFY, { method: "POST", body: form });
+    const outcome = (await res.json()) as {
+      success?: boolean;
+      hostname?: string;
+      action?: string;
+      "error-codes"?: string[];
+    };
+
+    if (!outcome.success) {
+      console.warn("[lead] Turnstile rejected the token:", outcome["error-codes"]?.join(", ") || "no reason given");
+      return false;
+    }
+
+    if (!ALLOWED_HOSTNAMES.has(outcome.hostname ?? "") || outcome.action !== TURNSTILE_ACTION) {
+      console.warn(
+        `[lead] Turnstile token out of scope: hostname=${outcome.hostname} action=${outcome.action}`,
+      );
+      // Advisory off production: Cloudflare's test keys answer with an empty
+      // action and a hostname that is not ours, so enforcing this locally
+      // would make every dev run look like an attack.
+      return !import.meta.env.PROD;
+    }
+
+    return true;
+  } catch (cause) {
+    console.error("[lead] Turnstile verification could not run:", cause);
+    return true;
+  }
+};
+
 export const POST: APIRoute = async ({ request }) => {
   let data: Record<string, unknown>;
   try {
@@ -65,6 +137,13 @@ export const POST: APIRoute = async ({ request }) => {
   // Honeypot: the form has a visually hidden "website" field that people
   // never fill in. Bots do — answer OK and drop it.
   if (text(data.website, 200)) return json(200, { ok: true });
+
+  // Vercel sets x-forwarded-for; the site is DNS-only on Cloudflare, so
+  // CF-Connecting-IP never arrives. remoteip is optional in Siteverify — a
+  // missing one narrows the check rather than breaking it.
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+  const passed = await verifyTurnstile(text(data["cf-turnstile-response"], 2048), clientIp);
+  if (!passed) return json(403, { ok: false, error: "bot_check_failed" });
 
   const lead = {
     firstName: text(data.firstName, 80),

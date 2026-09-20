@@ -17,12 +17,21 @@ customized for the client. All copy is in Swedish.
 
 Verified on the production build (`npm run build` + `astro preview`):
 
-- **No cookies, no local/session storage, no third-party requests from the
-  browser.** Every resource (fonts, GSAP, images, video) is served from the
-  site's own origin; the booking form posts to the site's own `/api/lead`,
-  which talks to GoHighLevel server-side. A cookie banner is therefore not
-  required (LEK 9 kap. 28 § only demands consent for non-essential storage)
-  and must not be added without reason.
+- **No cookies and no browser storage.** Every resource (fonts, GSAP, images,
+  video) is served from the site's own origin; the booking form posts to the
+  site's own `/api/lead`, which talks to GoHighLevel server-side. A consent
+  banner is therefore not required (LEK 9 kap. 28 § only demands consent for
+  non-essential storage) and must not be added without reason.
+- **One third-party request: Cloudflare Turnstile** (added 2026-09-20), the bot
+  check on the booking form. It loads `challenges.cloudflare.com` and gives
+  Cloudflare the visitor's IP, which is why `/integritetspolicy` now names
+  Cloudflare as a recipient. Create the widget with **pre-clearance off** —
+  that setting is the only thing that makes Turnstile set a `cf_clearance`
+  cookie, and it would drag the whole banner question back in. Keys are
+  `PUBLIC_TURNSTILE_SITEKEY` and `TURNSTILE_SECRET`; the token is redeemed
+  server-side in `/api/lead`, which fails open and logs when the secret is
+  unset or Cloudflare is unreachable, so neither can silently swallow every
+  booking. The honeypot field remains as the second layer.
 - **A consent banner was tried and removed.** Cookiebot shipped 2026-09-15 at
   the client's request and came out again 2026-09-20: its own scan confirmed the
   only cookie on the site was Cookiebot's `CookieConsent`, so the banner existed
@@ -97,7 +106,8 @@ Also confirm with the client before launch:
 | Reklamation, tilläggsarbete, skadestånd | Konsumenttjänstlagen | `/villkor` §3, §8, §9 |
 | ARN information | Lag (2015:671) om alternativ tvistlösning | `/villkor` §10 |
 | Privacy notice (art. 13) | GDPR | `/integritetspolicy`, linked from the form |
-| No cookies / no third-party requests | LEK 9 kap. 28 §, GDPR | No analytics; fonts and GSAP self-hosted |
+| No cookies; consent not required | LEK 9 kap. 28 §, GDPR | No analytics; fonts and GSAP self-hosted; Turnstile issues a token, not a cookie |
+| Turnstile IP processing disclosed | GDPR art. 13, 6.1 f | `/integritetspolicy`: Cloudflare named as recipient, legitimate interest |
 | Pause control for auto-playing video and carousels | WCAG 2.2.2 (best practice; EN 301 549) | Hero, `#galleri` |
 
 Registration plates in customer photos are blurred (a readable plate is

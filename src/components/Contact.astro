@@ -5,13 +5,21 @@
 // column: the booking request form. On submit the script POSTs the fields as
 // JSON to /api/lead (src/pages/api/lead.ts), a server route that creates the
 // contact in the client's GoHighLevel sub-account — the API token stays on
-// the server. Nothing is sent from the browser to any third party.
+// the server. The only third-party request the browser makes is Cloudflare
+// Turnstile, the bot check sitting in front of the submit button.
 //
 // GDPR: the privacy policy (linked under the form) names the CRM as a
 // recipient and explains the transfer basis (art. 13 information duty).
 import { site, fullAddress } from "../data/site";
+import { PUBLIC_TURNSTILE_SITEKEY } from "astro:env/client";
 
 const endpoint = "/api/lead";
+
+// Empty until the Turnstile keys are in the environment. The widget and its
+// script then stay out of the page entirely, rather than rendering a box that
+// can never resolve — /api/lead fails open to match, so the form keeps working
+// either way.
+const turnstileSitekey = PUBLIC_TURNSTILE_SITEKEY ?? "";
 ---
 
 <section class="contact" id="kontakt" aria-labelledby="contact-title">
@@ -167,6 +175,28 @@ const endpoint = "/api/lead";
         <p class="form-error" id="bf-error" role="alert" hidden>
           Fyll i alla fält märkta med * så att vi kan nå dig.
         </p>
+
+        {turnstileSitekey && (
+          <>
+            {/* Cloudflare Turnstile. It lives inside the <form> so the hidden
+                `cf-turnstile-response` input it injects is swept up by the
+                same collect() that gathers every other field — no special
+                case in the submit handler. The managed widget normally
+                resolves itself without the visitor touching anything. */}
+            <div
+              class="cf-turnstile form-turnstile"
+              data-sitekey={turnstileSitekey}
+              data-action="booking"
+              data-language="sv"
+              data-theme="dark"
+            ></div>
+            <script
+              is:inline
+              src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+              async
+              defer></script>
+          </>
+        )}
 
         <div class="form-footer">
           <button class="btn btn-primary form-submit" type="submit">Skicka bokningsförfrågan</button>
@@ -458,6 +488,14 @@ const endpoint = "/api/lead";
     display: none;
   }
 
+  /* Turnstile renders a fixed-size iframe and owns everything inside it; this
+     only spaces it off the submit row. It sits between the error line and the
+     button, so a visitor who has to solve a challenge meets it before the
+     thing they are about to click. */
+  .form-turnstile {
+    margin-bottom: 1.5em;
+  }
+
   .form-footer {
     display: flex;
     flex-direction: column;
@@ -549,6 +587,12 @@ const endpoint = "/api/lead";
   const status = document.querySelector<HTMLElement>("#bf-status");
   const error = document.querySelector<HTMLElement>("#bf-error");
 
+  // Turnstile tokens are single-use, so the widget has to be reset after every
+  // attempt — a successful one included, or a second booking from the same page
+  // would go out carrying a spent token.
+  const resetTurnstile = () =>
+    (window as unknown as { turnstile?: { reset: () => void } }).turnstile?.reset();
+
   const setStatus = (html: string, isError = false) => {
     if (!status) return;
     status.innerHTML = html;
@@ -609,12 +653,19 @@ const endpoint = "/api/lead";
             invalid_reg_nr: "registreringsnumret",
           };
           setStatus(`Kontrollera ${labels[body.error]} och försök igen.`, true);
+        } else if (body.error === "bot_check_failed") {
+          setStatus(
+            "Vi kunde inte bekräfta att du är en människa. Försök igen, eller " +
+              `<a href="${form.dataset.phone}">ring oss</a> så bokar vi åt dig.`,
+            true,
+          );
         } else {
           setStatus(fallback(), true);
         }
       } catch {
         setStatus(fallback(), true);
       } finally {
+        resetTurnstile();
         if (submit) submit.disabled = false;
       }
     });
