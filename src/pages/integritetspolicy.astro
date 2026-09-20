@@ -1,9 +1,9 @@
 ---
 // Privacy notice — the information GDPR art. 13 requires when personal data is
 // collected from the data subject (here: when someone books or contacts us).
-// Most of it is about what happens once a booking request reaches the business;
-// the "Cookies" section below also carries the Cookiebot declaration script,
-// which renders the auto-generated table of every cookie the site sets.
+// The site itself sets no cookies and runs no analytics, and the booking form
+// only opens the visitor's own mail app, so the notice is about what happens
+// once a booking request reaches the business.
 import BaseLayout from "../layouts/BaseLayout.astro";
 import LegalPage from "../components/LegalPage.astro";
 import { site, fullAddress } from "../data/site";
@@ -158,67 +158,12 @@ const description =
 
     <h2>Cookies och besök på webbplatsen</h2>
     <p>
-      En cookie är en liten textfil som en webbplats sparar i din webbläsare. De cookies
-      som är <strong>nödvändiga</strong> för att webbplatsen ska fungera sätts alltid.
-      Övriga cookies – till exempel för statistik eller marknadsföring – sätts <strong
-      >bara om du samtycker till dem</strong> i rutan som visas vid ditt första besök.
-      Du kan när som helst ändra dig.
+      Webbplatsen använder <strong>inga cookies</strong> och ingen besöksstatistik eller
+      spårning. Typsnitt och skript laddas från vår egen server, så inga uppgifter om
+      ditt besök skickas till tredje part. Det du skriver i bokningsformuläret skickas
+      krypterat till vår egen server, som lämnar det vidare till kundsystemet ovan –
+      inget annat. Därför behöver du inte ta ställning till någon cookie-ruta.
     </p>
-    <p>
-      Vårt eget innehåll laddas från vår egen server: typsnitt, bilder och skript hämtas
-      inte från tredje part. Det du skriver i bokningsformuläret skickas krypterat till
-      vår egen server, som lämnar det vidare till kundsystemet ovan – inget annat.
-    </p>
-    <p>
-      Samtycket hanteras åt oss av <strong>Cookiebot</strong>, en tjänst från
-      Usercentrics A/S i Danmark. För att kunna visa rutan och komma ihåg ditt val läser
-      tjänsten en anonymiserad version av din IP-adress och sparar ditt val i en cookie
-      som heter <code>CookieConsent</code>. Rättslig grund för de cookies du samtycker
-      till är ditt samtycke (artikel 6.1 a GDPR); för de nödvändiga cookies som krävs för
-      att leverera webbplatsen är grunden vårt berättigade intresse (artikel 6.1 f GDPR).
-    </p>
-    <p>
-      <button type="button" id="cookie-renew" class="legal-button">
-        Ändra ditt cookie-samtycke
-      </button>
-    </p>
-    <p>
-      Nedan listas de cookies webbplatsen använder, med ändamål och lagringstid. Listan
-      genereras och uppdateras automatiskt av Cookiebot.
-    </p>
-
-    {/* Renders the auto-generated cookie declaration table in place. `is:inline`
-        keeps Astro from bundling it — cd.js is tied to the domain group id in
-        its URL and injects its markup relative to its own tag. */}
-    <script
-      is:inline
-      id="CookieDeclaration"
-      src="https://consent.cookiebot.com/b99fb9e4-df67-46d8-beb4-61fc831ce482/cd.js"
-      type="text/javascript"
-      async></script>
-
-    {/* Re-opens the consent dialog. A plain button rather than Cookiebot's
-        documented `href="javascript: Cookiebot.renew()"` — same behaviour, but
-        it survives a Content-Security-Policy and leaves no dead link if the
-        consent script is blocked. Waiting for `load` settles the one question
-        that matters: uc.js has either defined Cookiebot by then, or it never
-        will (blocked by an extension, offline), and there is nothing to renew
-        — so the button hides rather than sitting there doing nothing. */}
-    <script is:inline>
-      window.addEventListener("load", function () {
-        var button = document.getElementById("cookie-renew");
-        if (!button) return;
-
-        if (window.Cookiebot && typeof window.Cookiebot.renew === "function") {
-          button.addEventListener("click", function () {
-            window.Cookiebot.renew();
-          });
-        } else {
-          button.hidden = true;
-        }
-      });
-    </script>
-
     <p>
       Webbservern kan tillfälligt logga din IP-adress och teknisk information om din
       webbläsare för att kunna leverera sidan och skydda den mot angrepp. Den
@@ -267,95 +212,3 @@ const description =
     </p>
   </LegalPage>
 </BaseLayout>
-
-<style>
-  /* The one bit of code voice in the prose (the CookieConsent cookie name) —
-     the legal pages have no `code` styling of their own. */
-  code {
-    padding: 0.1em 0.4em;
-    font-size: 0.9em;
-    color: var(--color-text-white);
-    background-color: var(--color-surface);
-    border-radius: var(--radius-sm);
-  }
-
-  /* The consent button reads as a link, matching the prose around it. */
-  .legal-button {
-    padding: 0;
-    font: inherit;
-    color: var(--color-text-white);
-    background: none;
-    border: none;
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-    text-decoration-color: var(--color-border-strong);
-    cursor: pointer;
-    transition: color var(--transition-base), text-decoration-color var(--transition-base);
-  }
-
-  .legal-button:hover {
-    color: var(--color-accent);
-    text-decoration-color: currentColor;
-  }
-
-  /* ---------- Cookiebot declaration table ----------
-     cd.js injects its markup at runtime with styles written for a light page,
-     so the text lands near-black on our dark surface. These rules are :global()
-     because the injected nodes never get Astro's scope attribute, and they are
-     kept to colour, spacing and overflow — the structure stays Cookiebot's. */
-  :global(#CookieDeclaration) {
-    margin-top: 0.5em;
-    font-size: var(--text-sm);
-    line-height: 1.6;
-    color: var(--color-text-body);
-  }
-
-  :global(.CookieDeclarationType) {
-    margin-bottom: 1.25em;
-    padding: 1.25em 1.5em;
-    background-color: var(--color-surface-faint);
-    border: 1px solid var(--color-border-soft);
-    border-radius: var(--radius-card);
-    /* The table is wider than the 46em reading column on a phone. */
-    overflow-x: auto;
-  }
-
-  :global(.CookieDeclarationTypeHeader) {
-    color: var(--color-text-white);
-    font-weight: 600;
-  }
-
-  :global(.CookieDeclarationTypeDescription),
-  :global(.CookieDeclarationIntro),
-  :global(.CookieDeclarationLastUpdated) {
-    color: var(--color-text-muted);
-  }
-
-  :global(.CookieDeclarationTable) {
-    border-collapse: collapse;
-  }
-
-  :global(.CookieDeclarationTableHeader) {
-    color: var(--color-text-white);
-    border-bottom: 1px solid var(--color-border-strong);
-  }
-
-  :global(.CookieDeclarationTableCell) {
-    color: var(--color-text-body);
-    border-bottom: 1px solid var(--color-border-soft);
-    /* Cookie names and domains are long unbroken strings. */
-    overflow-wrap: anywhere;
-  }
-
-  :global(#CookieDeclaration a) {
-    color: var(--color-text-white);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-    text-decoration-color: var(--color-border-strong);
-  }
-
-  :global(#CookieDeclaration a:hover) {
-    color: var(--color-accent);
-    text-decoration-color: currentColor;
-  }
-</style>

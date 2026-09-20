@@ -3,10 +3,8 @@ import "../styles/global.css";
 // Self-hosted web font (was Google Fonts). Loading fonts from fonts.googleapis.com
 // sends every visitor's IP address to Google before they can object — the
 // reason German courts and IMY guidance treat it as a GDPR problem. Serving the
-// files from our own origin removes the third-party request entirely. Same
-// reasoning for GSAP further down. The Cookiebot consent banner in <head> is
-// the one third-party script on the site, and it is what asks permission for
-// anything else.
+// files from our own origin removes the third-party request entirely, and lets
+// the privacy policy truthfully say "no data leaves the site".
 import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";
 import "@fontsource/plus-jakarta-sans/600.css";
@@ -80,21 +78,6 @@ const schema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    {/* Cookiebot consent banner. Deliberately the first script in <head>:
-        `data-blockingmode="auto"` works by rewriting other script tags before
-        they execute, so anything loaded ahead of it would escape the block.
-        `is:inline` keeps Astro from bundling it — the data-* attributes are
-        how Cookiebot identifies the domain group, and bundling would drop them.
-        The cookie declaration table it generates lives on /integritetspolicy. */}
-    <script
-      is:inline
-      id="Cookiebot"
-      src="https://consent.cookiebot.com/uc.js"
-      data-cbid="b99fb9e4-df67-46d8-beb4-61fc831ce482"
-      data-blockingmode="auto"
-      type="text/javascript"></script>
-
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />

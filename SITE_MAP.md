@@ -33,10 +33,8 @@ same subject/body.
 ## Page: `/integritetspolicy`
 
 GDPR art. 13 privacy notice — controller, data categories and purposes, legal
-bases, retention, recipients (incl. Google/Gmail transfer basis), cookies,
-rights, IMY complaint route. Shell: `LegalPage.astro`. The cookie section hosts
-Cookiebot's auto-generated declaration table (`cd.js`) and a button that
-reopens the consent dialog.
+bases, retention, recipients (incl. Google/Gmail transfer basis), no cookies,
+rights, IMY complaint route. Shell: `LegalPage.astro`.
 
 ## Page: `/villkor`
 
