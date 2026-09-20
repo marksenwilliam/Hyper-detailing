@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hyperdetailingumea.se/sitemap-index.xml
+Sitemap: https://hyperdetailing.se/sitemap-index.xml

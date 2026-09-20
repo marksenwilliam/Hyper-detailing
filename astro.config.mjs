@@ -11,9 +11,10 @@ const isDev = process.argv.includes('dev');
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO: Replace with the client's real production domain before launch.
-  // Used for canonical URLs, og:url, absolute og:image and the sitemap.
-  site: 'https://hyperdetailingumea.se',
+  // The live domain, connected to this Vercel project on 2026-09-20. Used for
+  // canonical URLs, og:url, absolute og:image and the sitemap — keep it in step
+  // with public/robots.txt, which repeats the sitemap URL by hand.
+  site: 'https://hyperdetailing.se',
   server: { port: 4322 },
 
   // Every page stays static (prerendered). The adapter only exists for the

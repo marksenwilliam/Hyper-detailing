@@ -56,9 +56,10 @@ Everything else on the site is verified and final. These values live in
 4. **`socials`** — Facebook and Instagram page URLs. Rows without a URL are not
    rendered, so no dead links ship; once filled in they appear in the footer
    and in the structured data (`sameAs`).
-5. **Domain** — `site` in `astro.config.mjs` is `https://hyperdetailingumea.se`.
-   Change it if the real domain differs; canonical URLs, Open Graph, the sitemap
-   and `public/robots.txt` all derive from it (update `robots.txt` by hand).
+5. **Domain** — `site` in `astro.config.mjs` is `https://hyperdetailing.se`, the
+   domain connected to the Vercel project. Canonical URLs, Open Graph, the
+   sitemap and `public/robots.txt` all derive from it (update `robots.txt` by
+   hand).
 
 Verified against the Google Business profile on 2026-09-09: phone
 `076-843 63 93`, address `Industrivägen 22, 901 30 Umeå`, hours every day
