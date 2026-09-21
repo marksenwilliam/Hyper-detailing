@@ -16,8 +16,10 @@ export const prerender = false;
 const GHL_API = "https://services.leadconnectorhq.com";
 const GHL_VERSION = "2021-07-28";
 
-// Custom field key in the sub-account (merge tag {{contact.reg_nr}})
+// Custom field keys in the sub-account, usable as merge tags in GHL workflows
+// ({{contact.reg_nr}}, {{contact.lead_message}}).
 const REG_NR_FIELD_KEY = "reg_nr";
+const MESSAGE_FIELD_KEY = "lead_message";
 
 // Shown in the contact's "source" and as tags, so the client can filter
 // website leads in GHL.
@@ -210,8 +212,34 @@ export const POST: APIRoute = async ({ request }) => {
 
   const { contact } = (await upsert.json()) as { contact?: { id?: string } };
 
-  // ---- 2. The free-text message becomes a note on the contact
+  // ---- 2. The message, twice over: to a custom field so the GHL workflows can
+  //         quote it with {{contact.lead_message}} (a note cannot be read by a
+  //         merge tag), and to a note, because the field holds only the latest
+  //         message — the next enquiry from the same person overwrites it.
+  //
+  //         Both are separate calls on purpose, and neither may fail the
+  //         booking. GHL rejects an upsert carrying a custom field key the
+  //         sub-account does not have, so putting lead_message in the upsert
+  //         above would turn every booking into a 502 the day the field is
+  //         missing or renamed. Out here the worst case is a log line, and the
+  //         field starts working by itself once someone creates it in GHL —
+  //         no deploy needed.
   if (lead.message && contact?.id) {
+    const field = await fetch(`${GHL_API}/contacts/${contact.id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({
+        customFields: [{ key: MESSAGE_FIELD_KEY, field_value: lead.message }],
+      }),
+    });
+    if (!field.ok) {
+      console.error(
+        `[lead] GHL ${MESSAGE_FIELD_KEY} update failed`,
+        field.status,
+        await field.text(),
+      );
+    }
+
     const note = await fetch(`${GHL_API}/contacts/${contact.id}/notes`, {
       method: "POST",
       headers,
