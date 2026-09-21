@@ -24,11 +24,16 @@ const DevTools = import.meta.env.DEV
 interface Props {
   title?: string;
   description?: string;
+  /** Keep the page out of search results. Only the 404 sets this: the status
+   *  code already tells a crawler not to index it, but nothing stops a stray
+   *  link from putting the URL in front of one that ignores the status. */
+  noindex?: boolean;
 }
 
 const {
   title = "Hyper Detailing Umeå – Rekond, polering & keramiskt lackskydd",
   description = site.description,
+  noindex = false,
 } = Astro.props;
 
 // Absolute URLs for canonical/OG/structured data (Astro.site is set in astro.config.mjs)
@@ -102,6 +107,7 @@ const schema = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />

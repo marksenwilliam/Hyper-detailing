@@ -5,7 +5,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../data/site";
 ---
 
-<BaseLayout title={`Sidan finns inte – ${site.fullName}`} description="Sidan du letar efter finns inte. Gå till startsidan eller kontakta oss.">
+<BaseLayout
+  title={`Sidan finns inte – ${site.fullName}`}
+  description="Sidan du letar efter finns inte. Gå till startsidan eller kontakta oss."
+  noindex
+>
   <section class="not-found">
     <div class="container not-found-inner">
       <span class="section-label">404</span>
