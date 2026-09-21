@@ -190,9 +190,17 @@ const turnstileSitekey = PUBLIC_TURNSTILE_SITEKEY ?? "";
               data-language="sv"
               data-theme="dark"
             ></div>
+            {/* `data-cookieconsent="ignore"` exempts this from Cookiebot's
+                auto-blocking. Without it the consent script rewrites the tag
+                and the bot check never loads for anyone who has not answered
+                the banner yet — which is every first-time visitor, i.e. the
+                ones a spam bot imitates. Turnstile is strictly necessary for
+                delivering the form the visitor asked for, sets no cookie, and
+                so sits outside the consent categories anyway. */}
             <script
               is:inline
               src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+              data-cookieconsent="ignore"
               async
               defer></script>
           </>

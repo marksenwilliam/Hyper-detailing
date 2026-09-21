@@ -17,28 +17,33 @@ customized for the client. All copy is in Swedish.
 
 Verified on the production build (`npm run build` + `astro preview`):
 
-- **No cookies and no browser storage.** Every resource (fonts, GSAP, images,
-  video) is served from the site's own origin; the booking form posts to the
-  site's own `/api/lead`, which talks to GoHighLevel server-side. A consent
-  banner is therefore not required (LEK 9 kap. 28 § only demands consent for
-  non-essential storage) and must not be added without reason.
-- **One third-party request: Cloudflare Turnstile** (added 2026-09-20), the bot
-  check on the booking form. It loads `challenges.cloudflare.com` and gives
-  Cloudflare the visitor's IP, which is why `/integritetspolicy` now names
-  Cloudflare as a recipient. Create the widget with **pre-clearance off** —
-  that setting is the only thing that makes Turnstile set a `cf_clearance`
-  cookie, and it would drag the whole banner question back in. Keys are
+- **Cookie consent: Cookiebot** (re-added 2026-09-21). `uc.js` is the first
+  script in `<head>` in `src/layouts/BaseLayout.astro`, with
+  `data-blockingmode="auto"` so it can block non-essential scripts before they
+  run; `cd.js` renders the auto-generated declaration in the "Cookies" section
+  of `/integritetspolicy`, beside a button that reopens the dialog via
+  `Cookiebot.renew()`. Domain group `b99fb9e4-df67-46d8-beb4-61fc831ce482`.
+  Categories and dialog copy live in the Cookiebot dashboard, not here.
+- **The banner has been on, off and on again.** It shipped 2026-09-15 at the
+  client's request, came out 2026-09-20 — the site set no cookies but its own
+  `CookieConsent`, so the banner existed to ask permission for itself — and went
+  back in 2026-09-21 ahead of adding analytics or ad tracking, which do need
+  consent. The 2026-09-15 dialog was also misconfigured: statistics and
+  marketing were pre-ticked (not valid consent — CJEU C-673/17 Planet49), there
+  was no reject button beside "Tillåt alla", and the copy described ad targeting
+  the site does not do. Check all three in the dashboard before trusting it.
+- **Every site resource is first-party.** Fonts, GSAP, images and video are
+  served from the site's own origin; the booking form posts to the site's own
+  `/api/lead`, which talks to GoHighLevel server-side.
+- **Cloudflare Turnstile** (added 2026-09-20) is the bot check on the booking
+  form, and the one third-party request the page makes besides Cookiebot. Keep
+  the widget on **pre-clearance off**: that setting is the only thing that makes
+  Turnstile set a `cf_clearance` cookie, and it is why the check counts as
+  strictly necessary and sits outside the consent categories. Keys are
   `PUBLIC_TURNSTILE_SITEKEY` and `TURNSTILE_SECRET`; the token is redeemed
-  server-side in `/api/lead`, which fails open and logs when the secret is
-  unset or Cloudflare is unreachable, so neither can silently swallow every
-  booking. The honeypot field remains as the second layer.
-- **A consent banner was tried and removed.** Cookiebot shipped 2026-09-15 at
-  the client's request and came out again 2026-09-20: its own scan confirmed the
-  only cookie on the site was Cookiebot's `CookieConsent`, so the banner existed
-  solely to ask permission for itself. Its dialog also pre-ticked the statistics
-  and marketing categories (not valid consent — CJEU C-673/17 Planet49) and
-  described ad targeting the site does not do. If tracking is ever added, bring
-  a banner back — and fix those two dashboard settings before it goes live.
+  server-side in `/api/lead`, which also checks the hostname and the `booking`
+  action, and fails open with a log line when the secret is unset or Cloudflare
+  is unreachable. The honeypot field remains as the second layer.
 - **No dev tooling in the build** — the Agentation widget, React and the
   `localhost:4747` probe exist in `npm run dev` only.
 - **axe-core** (WCAG 2.x A/AA + best-practice): zero violations on `/`,
@@ -106,8 +111,8 @@ Also confirm with the client before launch:
 | Reklamation, tilläggsarbete, skadestånd | Konsumenttjänstlagen | `/villkor` §3, §8, §9 |
 | ARN information | Lag (2015:671) om alternativ tvistlösning | `/villkor` §10 |
 | Privacy notice (art. 13) | GDPR | `/integritetspolicy`, linked from the form |
-| No cookies; consent not required | LEK 9 kap. 28 §, GDPR | No analytics; fonts and GSAP self-hosted; Turnstile issues a token, not a cookie |
-| Turnstile IP processing disclosed | GDPR art. 13, 6.1 f | `/integritetspolicy`: Cloudflare named as recipient, legitimate interest |
+| Consent before non-essential cookies; cookie information | LEK 9 kap. 28 §, GDPR | Cookiebot banner (`BaseLayout.astro`); declaration + renew button in `/integritetspolicy` |
+| Turnstile IP processing disclosed | GDPR art. 13, 6.1 f | `/integritetspolicy`: Cloudflare named as recipient, legitimate interest, no cookie |
 | Pause control for auto-playing video and carousels | WCAG 2.2.2 (best practice; EN 301 549) | Hero, `#galleri` |
 
 Registration plates in customer photos are blurred (a readable plate is

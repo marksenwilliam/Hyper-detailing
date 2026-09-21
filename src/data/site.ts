@@ -67,7 +67,7 @@ export const site = {
   ],
 
   // Date stamped on the legal pages ("Senast uppdaterad")
-  legalUpdated: "20 september 2026",
+  legalUpdated: "21 september 2026",
 };
 
 /** Socials that actually have a URL to link to */
