@@ -3,9 +3,9 @@
 // Phone, address, opening hours and the Google Maps link were verified against
 // the company's Google Business profile ("Hyperdetailing", Industrivägen 22)
 // on 2026-09-09. Email came from the client over SMS (August 2026).
+// Org.nr 559146-3665 supplied by Marksen Media on 2026-09-24.
 //
 // TODO before launch (cannot be looked up — the client must supply them):
-//   - orgNumber   organisationsnummer (E-handelslagen 8 § requires it on the site)
 //   - vatNumber   momsregistreringsnummer, if the business is momsregistrerad
 //   - legalName   the registered company name, if it differs from the brand name
 //   - socials     Facebook / Instagram page URLs (rows without a URL are not rendered)
@@ -19,7 +19,7 @@ export const site = {
 
   // ---- Legal identity (shown in the footer and on /villkor + /integritetspolicy)
   legalName: "Hyper Detailing Umeå",
-  orgNumber: "",
+  orgNumber: "559146-3665",
   vatNumber: "",
 
   // ---- Contact

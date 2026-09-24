@@ -62,9 +62,10 @@ Verified on the production build (`npm run build` + `astro preview`):
 Everything else on the site is verified and final. These values live in
 [`src/data/site.ts`](src/data/site.ts) and cannot be looked up from outside:
 
-1. **`orgNumber`** — organisationsnummer. E-handelslagen (2002:562) 8 § requires
-   it on the site. Rendered in the footer and on both legal pages once set.
-2. **`vatNumber`** — momsregistreringsnummer (if momsregistrerad). Same statute.
+1. ~~**`orgNumber`**~~ — done: `559146-3665` (2026-09-24). Rendered in the
+   footer and on both legal pages.
+2. **`vatNumber`** — momsregistreringsnummer (if momsregistrerad).
+   E-handelslagen (2002:562) 8 § requires it on the site.
 3. **`legalName`** — the registered company name, if it differs from
    "Hyper Detailing Umeå".
 4. **`socials`** — Facebook and Instagram page URLs. Rows without a URL are not
